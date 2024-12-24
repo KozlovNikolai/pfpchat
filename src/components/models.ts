@@ -19,3 +19,7 @@ export type userItem = {
   name: string
   online: boolean
 }
+
+export interface ChatMessage {
+  content: string
+}

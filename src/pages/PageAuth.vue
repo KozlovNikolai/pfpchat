@@ -38,21 +38,11 @@
   </q-page>
 </template>
 
-<script lang="ts">
-import { defineComponent, ref } from 'vue'
+<script setup lang="ts">
+import { ref } from 'vue'
 import LoginRegister from 'components/LoginRegister.vue'
 
-export default defineComponent({
-  components: {
-    LoginRegister,
-  },
-
-  setup() {
-    return {
-      tab: ref('login'),
-    }
-  },
-})
+const tab = ref('login')
 </script>
 
 <style></style>

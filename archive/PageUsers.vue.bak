@@ -35,24 +35,16 @@
   </q-page>
 </template>
 
-<script lang="ts">
-import { defineComponent, onBeforeMount } from 'vue'
-import { useChatStore } from 'src/stores/example-store'
+<script setup lang="ts">
+import { onBeforeMount } from 'vue'
+// import { useChatsStore } from 'src/stores/chat'
 // import { userItem } from 'src/components/models'
-const store = useChatStore()
-export default defineComponent({
-  name: 'IndexPage',
-  setup() {
-    // const users: userItem[] = store.usersArray as userItem[]
-    const users = store.usersArray
+// const store = useChatsStore()
 
-    onBeforeMount(() => {})
+// const users: userItem[] = store.usersArray as userItem[]
+// const users = store.usersArray
 
-    return {
-      users,
-    }
-  },
-})
+onBeforeMount(() => {})
 </script>
 
 <style></style>

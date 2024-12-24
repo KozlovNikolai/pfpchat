@@ -1,25 +1,51 @@
 import { defineStore } from 'pinia'
 import axios from 'axios'
-
-interface User {
-  id: number
-  name: string
-  surname: string
-  email: string
-}
-
-interface AuthState {
-  user: User | null
-  token: string | null
-  pubsubToken: string | null
-}
+import { AuthState } from './../models/AuthState'
+import { ChatSocket } from 'src/services/ChatSocket'
+import { API_BASE_URL, API_WS_URL } from 'src/config/api'
+import { useChatsStore } from 'src/stores/chat'
 
 export const useAuthStore = defineStore('auth', {
   state: (): AuthState => ({
-    user: null,
-    token: null,
-    pubsubToken: null,
+    userId: 0,
+    login: '',
+    account: '',
+    name: '',
+    surname: '',
+    email: '',
+    type: '',
+    token: '',
+    pubsubToken: '',
+    status: 'disconnected',
+    connected: false,
+    socket: null,
   }),
+  getters: {
+    isConnected(state): boolean {
+      return state.connected
+    },
+    getUser(state) {
+      return state
+    },
+    getToken(state): string {
+      return state.token
+    },
+    getPubsub(state): string {
+      return state.pubsubToken
+    },
+    getAccount(state): string {
+      return state.account
+    },
+    getEmail(state): string {
+      return state.email
+    },
+    getStatus(state): string {
+      return state.status
+    },
+    getFullName(state): string {
+      return state.name + ' ' + state.surname
+    },
+  },
   actions: {
     async register(payload: {
       name: string
@@ -27,37 +53,91 @@ export const useAuthStore = defineStore('auth', {
       email: string
       password: string
     }) {
-      const response = await axios.post('https://localhost:8443/signup', {
+      const response = await axios.post(`${API_BASE_URL}/signup`, {
         account: 'email',
         login: payload.email,
         password: payload.password,
         name: payload.name,
         surname: payload.surname,
       })
-      this.user = response.data.user
+      this.userId = response.data.user.id
+      this.login = response.data.user.login
+      this.account = response.data.user.account
+      this.name = response.data.user.name
+      this.surname = response.data.user.surname
+      this.email = response.data.user.email
+      this.type = response.data.user.type
       this.token = response.data.token
+      this.pubsubToken = response.data.pubsub
+      this.status = response.data.user.status
+      this.connected = false
     },
-    async login(payload: { email: string; password: string }) {
-      const response = await axios.post('http://localhost:8443/signin', {
-        account: 'email',
+
+    async loginByEmail(payload: { email: string; password: string }) {
+      const response = await axios.post(`${API_BASE_URL}/signin`, {
+        profile: 'email',
         login: payload.email,
         password: payload.password,
       })
-      this.user = response.data.user
+      this.userId = response.data.user.id
+      this.login = response.data.user.login
+      this.account = response.data.user.account
+      this.name = response.data.user.name
+      this.surname = response.data.user.surname
+      this.email = response.data.user.email
+      this.type = response.data.user.type
       this.token = response.data.token
       this.pubsubToken = response.data.pubsub
+      this.status = response.data.user.status
+      this.connected = false
 
-      console.log('login: ', this.user?.email)
-      console.log('token: ', this.token)
-      console.log('pubsubToken: ', this.pubsubToken)
+      this.socket = new ChatSocket(
+        `${API_WS_URL}/subscribe/${this.pubsubToken}`
+      )
+      this.socket.connect()
+      this.connected = true
+
+      const chats = useChatsStore()
+      chats.getChats().then
+
+      this.router
+        .push('/')
+        .then(() => {
+          console.log('Navigation succeeded!')
+        })
+        .catch((err) => {
+          console.error('Navigation failed:', err)
+        })
     },
+
     async logout() {
-      await axios.get('https://localhost:8443/auth/signout', {
-        headers: { Authorization: `Bearer ${this.token}` },
-      })
-      this.user = null
-      this.token = null
-      this.pubsubToken = null
+      const response = await axios.get(
+        `${API_BASE_URL}/auth/signout/${this.getPubsub}`,
+        {
+          headers: { Authorization: `Bearer ${this.getToken}` },
+        }
+      )
+      // this.status = response.data.status
+      // this.socket?.disconnect()
+      // this.socket = null
+      // this.connected = false
+
+      this.userId = 0
+      this.login = ''
+      this.account = ''
+      this.name = ''
+      this.surname = ''
+      this.email = ''
+      this.type = ''
+      this.token = ''
+      this.pubsubToken = ''
+      this.status = response.data.status
+      this.connected = false
+      this.socket?.disconnect()
+      this.socket = null
+
+      const chats = useChatsStore()
+      chats.clear()
     },
   },
 })

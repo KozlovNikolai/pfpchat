@@ -1,7 +1,5 @@
 import { boot } from 'quasar/wrappers'
 import axios, { AxiosInstance } from 'axios'
-import https from 'https'
-import fs from 'fs'
 
 declare module 'vue' {
   interface ComponentCustomProperties {
@@ -10,11 +8,7 @@ declare module 'vue' {
   }
 }
 
-const api = axios.create({
-  httpsAgent: new https.Agent({
-    ca: fs.readFileSync('/home/developer/.ssh/cert.pem'),
-  }),
-})
+const api = axios.create({})
 export default boot(({ app }) => {
   // for use inside Vue files (Options API) through this.$axios and this.$api
 

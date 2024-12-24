@@ -1,11 +1,11 @@
-import { RouteRecordRaw } from 'vue-router';
+import { RouteRecordRaw } from 'vue-router'
 
 const routes: RouteRecordRaw[] = [
   {
     path: '/',
     component: () => import('layouts/MainLayout.vue'),
     children: [
-      { path: '', component: () => import('pages/PageUsers.vue') },
+      { path: '', component: () => import('pages/PageStart.vue') },
       { path: '/chat', component: () => import('pages/PageChat.vue') },
       { path: '/auth', component: () => import('pages/PageAuth.vue') },
     ],
@@ -17,6 +17,6 @@ const routes: RouteRecordRaw[] = [
     path: '/:catchAll(.*)*',
     component: () => import('pages/ErrorNotFound.vue'),
   },
-];
+]
 
-export default routes;
+export default routes

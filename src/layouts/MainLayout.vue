@@ -17,7 +17,7 @@
         </q-toolbar-title>
 
         <q-btn
-          v-if="!store.userDetails.userId"
+          v-if="!store.getUser?.userId"
           to="/auth"
           class="absolute-right q-pr-sm"
           icon="account_circle"
@@ -28,7 +28,7 @@
         />
         <q-btn
           v-else
-          @click="store.logoutUser"
+          @click="logout"
           class="absolute-right q-pr-sm"
           icon="account_circle"
           flat
@@ -36,7 +36,7 @@
           dense
         >
           Logout<br />
-          {{ store.userDetails.name }}
+          {{ store.getUser?.name }}
         </q-btn>
       </q-toolbar>
     </q-header>
@@ -47,47 +47,44 @@
   </q-layout>
 </template>
 
-<script lang="ts">
-import { defineComponent, ref, watch } from 'vue'
+<script setup lang="ts">
+import { ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { useChatStore } from 'src/stores/example-store'
+import { useAuthStore } from 'src/stores/auth'
+import { AxiosError } from 'axios'
 
-export default defineComponent({
-  setup() {
-    const route = useRoute()
-    const router = useRouter()
-    const title = ref('')
-    const store = useChatStore()
+const route = useRoute()
+const router = useRouter()
+const title = ref('')
+const store = useAuthStore()
 
-    const updateTitle = () => {
-      switch (route.fullPath) {
-        case '/':
-          title.value = 'SmackChat'
-          break
-        case '/auth':
-          title.value = 'Login'
-          break
-        case '/chat':
-          title.value = 'Chat'
-          break
-        default:
-          title.value = 'SmackChat'
-      }
-    }
+const updateTitle = () => {
+  switch (route.fullPath) {
+    case '/':
+      title.value = 'Sputnik'
+      break
+    case '/auth':
+      title.value = 'Login'
+      break
+    case '/chat':
+      title.value = 'Chat'
+      break
+    default:
+      title.value = 'Sputnik'
+  }
+}
 
-    const goBack = () => {
-      router.go(-1)
-    }
-    watch(route, updateTitle, { immediate: true })
-    watch(route, (newRoute) => {
-      console.log('Route changed: ', newRoute.fullPath)
-    })
+const logout = () => {
+  store.logout().catch((e: AxiosError) => {
+    console.log(e)
+  })
+}
 
-    return {
-      title,
-      goBack,
-      store,
-    }
-  },
+const goBack = () => {
+  router.go(-1)
+}
+watch(route, updateTitle, { immediate: true })
+watch(route, (newRoute) => {
+  console.log('Route changed: ', newRoute.fullPath)
 })
 </script>

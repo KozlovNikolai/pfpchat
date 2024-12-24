@@ -38,40 +38,32 @@
   </q-page>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import { ref } from 'vue'
 import { Ref } from 'vue'
 
-export default {
-  setup() {
-    const messages: Ref<{ text: string; from: string }[]> = ref([
-      {
-        text: 'Hey, Jim! How are you?',
-        from: 'me',
-      },
-
-      {
-        text: 'Good thancks, Danny! How are you?',
-        from: 'them',
-      },
-
-      {
-        text: 'Hey, Jim! How are you?',
-        from: 'me',
-      },
-    ])
-    const newMessage: Ref<string> = ref('')
-    return {
-      newMessage,
-      messages,
-      sendMessage() {
-        messages.value.push({
-          text: newMessage.value,
-          from: 'me',
-        })
-      },
-    }
+const messages: Ref<{ text: string; from: string }[]> = ref([
+  {
+    text: 'Hey, Jim! How are you?',
+    from: 'me',
   },
+
+  {
+    text: 'Good thancks, Danny! How are you?',
+    from: 'them',
+  },
+
+  {
+    text: 'Hey, Jim! How are you?',
+    from: 'me',
+  },
+])
+const newMessage: Ref<string> = ref('')
+const sendMessage = () => {
+  messages.value.push({
+    text: newMessage.value,
+    from: 'me',
+  })
 }
 </script>
 

@@ -1,14 +1,14 @@
 <template>
   <q-form>
     <q-input
-      v-if="tab == 'register'"
+      v-if="tab === 'register'"
       v-model="formData.name"
       class="q-mb-md"
       outlined
       label="Name"
     />
     <q-input
-      v-if="tab == 'register'"
+      v-if="tab === 'register'"
       v-model="formData.surname"
       class="q-mb-md"
       outlined
@@ -18,6 +18,7 @@
       v-model="formData.email"
       class="q-mb-md"
       outlined
+      autocomplete="email"
       label="Email"
     />
     <q-input
@@ -25,6 +26,7 @@
       class="q-mb-md"
       outlined
       type="password"
+      autocomplete="current-password"
       label="Password"
     />
     <div class="row">
@@ -38,38 +40,50 @@
   </q-form>
 </template>
 
-<script lang="ts">
-import { defineComponent, Ref, ref } from 'vue'
+<script setup lang="ts">
+import { Ref, ref } from 'vue'
 import { useAuthStore } from 'src/stores/auth'
+import { AxiosError } from 'axios'
+
+const props = defineProps<{ tab: string }>()
+
 const store = useAuthStore()
 
-export default defineComponent({
-  name: 'LoginRegister',
-  props: ['tab'],
-  setup(props) {
-    const formData: Ref<{
-      name: string
-      surname: string
-      email: string
-      password: string
-    }> = ref({
-      name: '',
-      surname: '',
-      email: 'cmd@cmd.ru',
-      password: '123456',
-    })
-    const submitForm = () => {
-      if (props.tab == 'login') {
-        store.login(formData.value)
-      } else {
-        store.register(formData.value)
-      }
-    }
-
-    return {
-      formData,
-      submitForm,
-    }
-  },
+const formData: Ref<{
+  name: string
+  surname: string
+  email: string
+  password: string
+}> = ref({
+  name: '',
+  surname: '',
+  email: 'cmd@cmd.ru',
+  password: '123456',
 })
+
+const loading = ref(false)
+
+const submitForm = () => {
+  loading.value = true
+
+  if (props.tab === 'login') {
+    store
+      .loginByEmail(formData.value)
+      .catch((e: AxiosError) => {
+        console.log(e)
+      })
+      .finally(() => {
+        loading.value = false
+      })
+  } else {
+    store
+      .register(formData.value)
+      .catch((e: AxiosError) => {
+        console.log(e)
+      })
+      .finally(() => {
+        loading.value = false
+      })
+  }
+}
 </script>
