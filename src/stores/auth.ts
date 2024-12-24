@@ -98,7 +98,7 @@ export const useAuthStore = defineStore('auth', {
       this.connected = true
 
       const chats = useChatsStore()
-      chats.getChats().then
+      chats.getChats()
 
       this.router
         .push('/')
