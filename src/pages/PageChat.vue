@@ -1,7 +1,7 @@
 <template>
   <q-page class="flex column">
     <q-banner class="bg-grey-4 text-center">
-      {{ chatsStore.getChat(chatsStore.currentChatID)?.name }}
+      {{ chatsStore.getterChat(chatsStore.currentChatID)?.name }}
     </q-banner>
     <div class="q-pa-md column col justify-end">
       <q-chat-message

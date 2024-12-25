@@ -25,7 +25,7 @@ export const useChatsStore = defineStore('chats', {
         updated_at: value.updated_at,
       }))
     },
-    getChat: (state) => {
+    getterChat: (state) => {
       return (id: number) => {
         return state.chats.get(id)
       }
