@@ -25,6 +25,11 @@ export const useChatsStore = defineStore('chats', {
         updated_at: value.updated_at,
       }))
     },
+    getChat: (state) => {
+      return (id: number) => {
+        return state.chats.get(id)
+      }
+    },
   },
   actions: {
     setChats(chats: Chat[]) {

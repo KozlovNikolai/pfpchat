@@ -3,7 +3,7 @@
     <q-header elevated>
       <q-toolbar>
         <q-btn
-          v-if="$route.fullPath.includes('/chat')"
+          v-if="cStore.path === 'chat'"
           @click="goBack"
           icon="arrow_back"
           flat
@@ -87,8 +87,4 @@ const goBack = () => {
 const auth = () => {
   cStore.moveTo('auth')
 }
-// watch(route, updateTitle, { immediate: true })
-// watch(route, (newRoute) => {
-//   console.log('Route changed: ', newRoute.fullPath)
-// })
 </script>

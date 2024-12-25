@@ -5,11 +5,11 @@
       separator
     >
       <q-item
-        v-for="chat in store.chatsArray"
+        v-for="chat in chatsStore.chatsArray"
         :key="chat.id"
-        to="/chat"
         clickable
         v-ripple
+        @click="() => toChat(chat.id)"
       >
         <q-item-section avatar>
           <q-avatar
@@ -31,22 +31,16 @@
 </template>
 
 <script setup lang="ts">
-import { onBeforeMount } from 'vue'
 import { useChatsStore } from 'src/stores/chat'
-// import { Chat } from 'src/models/Chat'
-const store = useChatsStore()
+import { useCommonStore } from 'src/stores/common'
 
-// const chats: Chat[] = store.chatsArray as Chat[]
-// const chats = ref(store.chatsArray)
+const chatsStore = useChatsStore()
+const comStore = useCommonStore()
 
-onBeforeMount(() => {})
-// console.log('chats: ', chats.value.length)
+const toChat = (id: number) => {
+  chatsStore.currentChatID = id
+  comStore.moveTo('chat')
+}
 </script>
 
 <style></style>
-<!--
-<q-item-section side>
-  <q-badge :color="chat.online ? 'light-green-5' : 'grey-4'">
-    {{ chat.online ? 'Online' : 'Offline' }}
-  </q-badge>
-</q-item-section> -->
