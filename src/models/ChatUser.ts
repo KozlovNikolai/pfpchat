@@ -2,8 +2,7 @@ export class ChatUser {
   id: number
   user_ext_id: number
   login: string
-  account: string
-  token: string
+  profile: string
   name: string
   surname: string
   email: string
@@ -16,8 +15,7 @@ export class ChatUser {
     id: number
     user_ext_id: number
     login: string
-    account: string
-    token: string
+    profile: string
     name: string
     surname: string
     email: string
@@ -29,8 +27,7 @@ export class ChatUser {
     this.id = data.id
     this.user_ext_id = data.user_ext_id
     this.login = data.login
-    this.account = data.account
-    this.token = data.token
+    this.profile = data.profile
     this.name = data.name
     this.surname = data.surname
     this.email = data.email

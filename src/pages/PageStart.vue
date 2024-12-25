@@ -33,12 +33,15 @@
 <script setup lang="ts">
 import { useChatsStore } from 'src/stores/chat'
 import { useCommonStore } from 'src/stores/common'
+import { useUserStore } from 'src/stores/user'
 
 const chatsStore = useChatsStore()
 const comStore = useCommonStore()
+const userStore = useUserStore()
 
 const toChat = (id: number) => {
   chatsStore.currentChatID = id
+  userStore.getChatUsers(id)
   comStore.moveTo('chat')
 }
 </script>
