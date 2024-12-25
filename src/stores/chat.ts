@@ -80,6 +80,25 @@ export const useChatsStore = defineStore('chats', {
       })
       this.setChats(response.data)
     },
+
+    async getChat(chatID: number) {
+      const authStore = useAuthStore()
+      const response = await axios.get(
+        `${API_BASE_URL}/auth/enter/${authStore.getPubsub}?chat_id=${chatID}`,
+        {
+          headers: { Authorization: `Bearer ${authStore.getToken}` },
+        }
+      )
+
+      if (Array.isArray(response.data)) {
+        const userIds = response.data
+          .filter((usr: { id: number }) => usr.id != authStore.getUser.userId)
+          .map((usr) => usr.id)
+
+        const chat = this.chats.get(chatID)
+        if (chat) chat.users = userIds
+      }
+    },
   },
 })
 

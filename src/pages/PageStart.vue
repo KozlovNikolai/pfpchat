@@ -21,6 +21,7 @@
         </q-item-section>
 
         <q-item-section>
+          <q-item-label>ID:{{ chat.id }}</q-item-label>
           <q-item-label>{{ chat.name }}</q-item-label>
           <q-item-label>{{ chat.chat_type }}</q-item-label>
         </q-item-section>

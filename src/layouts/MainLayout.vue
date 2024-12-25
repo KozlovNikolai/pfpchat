@@ -18,7 +18,7 @@
 
         <q-btn
           v-if="!store.getUser?.userId"
-          to="/auth"
+          @click="auth"
           class="absolute-right q-pr-sm"
           icon="account_circle"
           flat
@@ -42,37 +42,37 @@
     </q-header>
 
     <q-page-container>
-      <router-view />
+      <PageStart v-if="cStore.path === 'start'" />
+      <PageAuth v-else-if="cStore.path === 'auth'" />
+      <PageChat v-else-if="cStore.path === 'chat'" />
     </q-page-container>
   </q-layout>
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { computed } from 'vue'
 import { useAuthStore } from 'src/stores/auth'
 import { AxiosError } from 'axios'
+import { useCommonStore } from 'src/stores/common'
 
-const route = useRoute()
-const router = useRouter()
-const title = ref('')
+import PageStart from 'src/pages/PageStart.vue'
+import PageAuth from 'src/pages/PageAuth.vue'
+import PageChat from 'src/pages/PageChat.vue'
+
 const store = useAuthStore()
-
-const updateTitle = () => {
-  switch (route.fullPath) {
-    case '/':
-      title.value = 'Sputnik'
-      break
-    case '/auth':
-      title.value = 'Login'
-      break
-    case '/chat':
-      title.value = 'Chat'
-      break
+const cStore = useCommonStore()
+const title = computed(() => {
+  switch (cStore.path) {
+    case 'start':
+      return 'Sputnik'
+    case 'auth':
+      return 'Login'
+    case 'chat':
+      return 'Chat'
     default:
-      title.value = 'Sputnik'
+      return 'Sputnik'
   }
-}
+})
 
 const logout = () => {
   store.logout().catch((e: AxiosError) => {
@@ -81,10 +81,14 @@ const logout = () => {
 }
 
 const goBack = () => {
-  router.go(-1)
+  cStore.moveTo('start')
 }
-watch(route, updateTitle, { immediate: true })
-watch(route, (newRoute) => {
-  console.log('Route changed: ', newRoute.fullPath)
-})
+
+const auth = () => {
+  cStore.moveTo('auth')
+}
+// watch(route, updateTitle, { immediate: true })
+// watch(route, (newRoute) => {
+//   console.log('Route changed: ', newRoute.fullPath)
+// })
 </script>

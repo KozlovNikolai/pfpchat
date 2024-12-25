@@ -4,6 +4,7 @@ import { AuthState } from './../models/AuthState'
 import { ChatSocket } from 'src/services/ChatSocket'
 import { API_BASE_URL, API_WS_URL } from 'src/config/api'
 import { useChatsStore } from 'src/stores/chat'
+import { useCommonStore } from './common'
 
 export const useAuthStore = defineStore('auth', {
   state: (): AuthState => ({
@@ -99,15 +100,9 @@ export const useAuthStore = defineStore('auth', {
 
       const chats = useChatsStore()
       chats.getChats()
-
-      this.router
-        .push('/')
-        .then(() => {
-          console.log('Navigation succeeded!')
-        })
-        .catch((err) => {
-          console.error('Navigation failed:', err)
-        })
+      chats.currentChatID = response.data.current_chat_id
+      const cStore = useCommonStore()
+      cStore.moveTo('start')
     },
 
     async logout() {
