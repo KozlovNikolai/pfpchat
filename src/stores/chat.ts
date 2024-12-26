@@ -5,7 +5,6 @@ import { Chat } from 'src/models/Chat'
 import { useAuthStore } from './auth'
 import axios from 'axios'
 import { API_BASE_URL } from 'src/config/api'
-import { ChatMessage } from 'src/models/ChatMessage'
 
 export const useChatsStore = defineStore('chats', {
   state: () => ({
@@ -30,13 +29,6 @@ export const useChatsStore = defineStore('chats', {
     getterChat: (state) => {
       return (id: number) => {
         return state.chats.get(id)
-      }
-    },
-    chatMsgs: (state): ChatMessage[] => {
-      console.log('GET CHATS MESSAGES')
-      const chat = state.chats.get(state.currentChatID)
-      return () => {
-        state.chats.get(state.currentChatID)?.messages
       }
     },
   },

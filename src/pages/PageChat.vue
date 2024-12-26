@@ -1,29 +1,23 @@
 <template>
   <q-page>
-    <div>
-      <q-virtual-scroll
-        ref="virtualListRef"
-        style="max-height: 300px"
-        component="q-list"
-        :items="chatsStore.getterChat(chatsStore.currentChatID)?.messages"
-        separator
-        @virtual-scroll="onVirtualScroll"
-        v-slot="{ item, index }"
+    <div class="chat">
+      <div
+        class="message-list"
+        ref="messageList"
       >
-        <q-item
-          dense
-          :class="{ 'bg-black text-white': index === virtualListIndex }"
-        >
-          <q-item-section>
-            <q-item-label>
-              #{{ userStore.getUserByID(item.sender_id)?.name }} -
-              {{ item.text }}
-            </q-item-label>
-          </q-item-section>
-        </q-item>
-
-        <q-separator />
-      </q-virtual-scroll>
+        <q-chat-message
+          v-for="message in chatsStore.getterChat(chatsStore.currentChatID)
+            ?.messages"
+          :key="message.id"
+          :name="
+            message.sender_id != authStore.userId
+              ? userStore.users.get(message.sender_id)?.name
+              : 'Me'
+          "
+          :text="[message.text]"
+          :sent="message.sender_id == authStore.userId ? true : false"
+        />
+      </div>
       <q-footer elevated>
         <q-toolbar>
           <q-form class="full-width">
@@ -55,26 +49,21 @@
 </template>
 
 <script setup lang="ts">
-import { Ref, ref, onMounted, VNodeRef } from 'vue'
+import { Ref, ref } from 'vue'
 import { useChatsStore } from 'src/stores/chat'
 import { useUserStore } from 'src/stores/user'
-// import { useAuthStore } from 'src/stores/auth'
+import { useAuthStore } from 'src/stores/auth'
 
 const chatsStore = useChatsStore()
 const userStore = useUserStore()
-// const authStore = useAuthStore()
+const authStore = useAuthStore()
 
-const virtualListRef = ref<VNodeRef | null>(null)
-const virtualListIndex = ref<number>(15)
+// const virtualListRef = ref<VNodeRef | null>(null)
+// const virtualListIndex = ref<number>(15)
 
-onMounted(() => {
-  virtualListRef.value.scrollTo(virtualListIndex.value)
-})
-
-const onVirtualScroll = ({ index }: { index: number }) => {
-  virtualListIndex.value = index
-  console.log('INDEX = ', index)
-}
+// onMounted(() => {
+//   virtualListRef.value.scrollTo(virtualListIndex.value)
+// })
 
 const newMessage: Ref<string> = ref('')
 const sendMessage = () => {
@@ -87,4 +76,12 @@ const sendMessage = () => {
 }
 </script>
 
-<style></style>
+<style>
+.chat {
+  height: 1000px; /* Задайте нужную высоту */
+  overflow-y: auto; /* Поддержка прокрутки */
+}
+.message-list {
+  padding: 10px; /* Настройки отступов */
+}
+</style>
