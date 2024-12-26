@@ -1,73 +1,89 @@
 <template>
-  <q-page class="flex column">
-    <q-banner class="bg-grey-4 text-center">
-      {{ chatsStore.getterChat(chatsStore.currentChatID)?.name }}
-    </q-banner>
-    <div class="q-pa-md column col justify-end">
-      <q-chat-message
-        v-for="message in messages"
-        :key="message.text"
-        :name="message.from"
-        :text="[message.text]"
-        :sent="message.from == 'me' ? true : false"
-      />
+  <q-page>
+    <div>
+      <q-virtual-scroll
+        ref="virtualListRef"
+        style="max-height: 300px"
+        component="q-list"
+        :items="chatsStore.getterChat(chatsStore.currentChatID)?.messages"
+        separator
+        @virtual-scroll="onVirtualScroll"
+        v-slot="{ item, index }"
+      >
+        <q-item
+          dense
+          :class="{ 'bg-black text-white': index === virtualListIndex }"
+        >
+          <q-item-section>
+            <q-item-label>
+              #{{ userStore.getUserByID(item.sender_id)?.name }} -
+              {{ item.text }}
+            </q-item-label>
+          </q-item-section>
+        </q-item>
+
+        <q-separator />
+      </q-virtual-scroll>
+      <q-footer elevated>
+        <q-toolbar>
+          <q-form class="full-width">
+            <q-input
+              v-model="newMessage"
+              @keyup.enter="sendMessage"
+              bg-color="white"
+              outlined
+              rounded
+              label="Message"
+              dense
+            >
+              <template v-slot:after>
+                <q-btn
+                  round
+                  dense
+                  flat
+                  @click="sendMessage"
+                  color="white"
+                  icon="send"
+                />
+              </template>
+            </q-input>
+          </q-form>
+        </q-toolbar>
+      </q-footer>
     </div>
-    <q-footer elevated>
-      <q-toolbar>
-        <q-form class="full-width">
-          <q-input
-            v-model="newMessage"
-            bg-color="white"
-            outlined
-            rounded
-            label="Message"
-            dense
-          >
-            <template v-slot:after>
-              <q-btn
-                round
-                dense
-                flat
-                @click="sendMessage"
-                color="white"
-                icon="send"
-              />
-            </template>
-          </q-input>
-        </q-form>
-      </q-toolbar>
-    </q-footer>
   </q-page>
 </template>
 
 <script setup lang="ts">
-import { Ref, ref } from 'vue'
+import { Ref, ref, onMounted, VNodeRef } from 'vue'
 import { useChatsStore } from 'src/stores/chat'
+import { useUserStore } from 'src/stores/user'
+// import { useAuthStore } from 'src/stores/auth'
 
 const chatsStore = useChatsStore()
+const userStore = useUserStore()
+// const authStore = useAuthStore()
 
-const messages: Ref<{ text: string; from: string }[]> = ref([
-  {
-    text: 'Hey, Jim! How are you?',
-    from: 'me',
-  },
+const virtualListRef = ref<VNodeRef | null>(null)
+const virtualListIndex = ref<number>(15)
 
-  {
-    text: 'Good thancks, Danny! How are you?',
-    from: 'them',
-  },
+onMounted(() => {
+  virtualListRef.value.scrollTo(virtualListIndex.value)
+})
 
-  {
-    text: 'Hey, Jim! How are you?',
-    from: 'me',
-  },
-])
+const onVirtualScroll = ({ index }: { index: number }) => {
+  virtualListIndex.value = index
+  console.log('INDEX = ', index)
+}
+
 const newMessage: Ref<string> = ref('')
 const sendMessage = () => {
-  messages.value.push({
+  chatsStore.sendMessageToChat({
+    chatID: chatsStore.currentChatID,
     text: newMessage.value,
-    from: 'me',
+    msgType: 'nop',
   })
+  newMessage.value = ''
 }
 </script>
 

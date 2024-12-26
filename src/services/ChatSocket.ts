@@ -1,4 +1,5 @@
 import { useAuthStore } from 'src/stores/auth'
+import { useChatsStore } from 'src/stores/chat'
 
 export class ChatSocket {
   private socket?: WebSocket
@@ -59,10 +60,18 @@ export class ChatSocket {
   private handleMessage(rawMessage: string) {
     try {
       const message = JSON.parse(rawMessage)
-
+      console.log('Received message: ', message)
       switch (message.action) {
         case 'new-message':
           // this.handleNewMessage(message)
+          const chatsStore = useChatsStore()
+          console.log('NEW MESSAGE')
+          chatsStore.getChatMessages({
+            chatID: message.chat_id,
+            initMsgID: 0,
+            before: 0,
+            after: 1000,
+          })
           break
 
         default:

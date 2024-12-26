@@ -42,6 +42,12 @@ const userStore = useUserStore()
 const toChat = (id: number) => {
   chatsStore.currentChatID = id
   userStore.getChatUsers(id)
+  chatsStore.getChatMessages({
+    chatID: id,
+    initMsgID: 0,
+    before: 0,
+    after: 1000,
+  })
   comStore.moveTo('chat')
 }
 </script>

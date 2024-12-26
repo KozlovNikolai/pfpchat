@@ -5,6 +5,7 @@ import { Chat } from 'src/models/Chat'
 import { useAuthStore } from './auth'
 import axios from 'axios'
 import { API_BASE_URL } from 'src/config/api'
+import { ChatMessage } from 'src/models/ChatMessage'
 
 export const useChatsStore = defineStore('chats', {
   state: () => ({
@@ -13,6 +14,7 @@ export const useChatsStore = defineStore('chats', {
   }),
   getters: {
     chatsArray: (state): Chat[] => {
+      console.log('GET CHATS ARRAY')
       return Array.from(state.chats.entries()).map(([chatID, value]) => ({
         id: chatID,
         name: value.name, // Можно заменить на реальное значение email
@@ -28,6 +30,13 @@ export const useChatsStore = defineStore('chats', {
     getterChat: (state) => {
       return (id: number) => {
         return state.chats.get(id)
+      }
+    },
+    chatMsgs: (state): ChatMessage[] => {
+      console.log('GET CHATS MESSAGES')
+      const chat = state.chats.get(state.currentChatID)
+      return () => {
+        state.chats.get(state.currentChatID)?.messages
       }
     },
   },
@@ -102,6 +111,71 @@ export const useChatsStore = defineStore('chats', {
 
         const chat = this.chats.get(chatID)
         if (chat) chat.users = userIds
+      }
+    },
+    async getChatMessages(req: {
+      chatID: number
+      initMsgID: number
+      before: number
+      after: number
+    }) {
+      const authStore = useAuthStore()
+      const response = await axios.post(
+        `${API_BASE_URL}/auth/getchatmsgs`,
+        {
+          chat_id: req.chatID,
+          initial_msg_id: req.initMsgID,
+          before: req.before,
+          after: req.after,
+        },
+        {
+          headers: { Authorization: `Bearer ${authStore.getToken}` },
+        }
+      )
+      const messages = response.data
+      const chat = this.chats.get(req.chatID)
+      if (chat) {
+        if (!chat.messages) {
+          chat.messages = []
+        }
+        const existingMessageIds = new Set(
+          chat.messages.map((message) => message.id)
+        )
+        for (const message of messages) {
+          if (!existingMessageIds.has(message.id)) {
+            chat.messages.push(message)
+            existingMessageIds.add(message.id)
+          }
+        }
+
+        chat.messages.sort((a, b) => a.id - b.id)
+      } else {
+        console.error(`Chat with ID ${req.chatID} not found.`)
+      }
+    },
+    async sendMessageToChat(req: {
+      chatID: number
+      text: string
+      msgType: string
+    }) {
+      const authStore = useAuthStore()
+      const response = await axios.post(
+        `${API_BASE_URL}/auth/sendmsg`,
+        {
+          chat_id: req.chatID,
+          text: req.text,
+          msg_type: req.msgType,
+        },
+        {
+          headers: { Authorization: `Bearer ${authStore.getToken}` },
+        }
+      )
+      const resp = response.data
+
+      if (resp === 'message sent') {
+        console.log(`Message sent to Chat with ID ${req.chatID}.`)
+      } else {
+        console.error(`Message not send to chat with ID ${req.chatID}.`)
       }
     },
   },
