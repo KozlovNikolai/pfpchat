@@ -55,23 +55,26 @@ export const useAuthStore = defineStore('auth', {
       password: string
     }) {
       const response = await axios.post(`${API_BASE_URL}/signup`, {
-        account: 'email',
+        profile: 'email',
         login: payload.email,
         password: payload.password,
         name: payload.name,
         surname: payload.surname,
       })
-      this.userId = response.data.user.id
-      this.login = response.data.user.login
-      this.account = response.data.user.account
-      this.name = response.data.user.name
-      this.surname = response.data.user.surname
-      this.email = response.data.user.email
-      this.type = response.data.user.type
-      this.token = response.data.token
-      this.pubsubToken = response.data.pubsub
-      this.status = response.data.user.status
-      this.connected = false
+      if (response.status === 201) {
+        this.loginByEmail(payload)
+      }
+      // this.userId = response.data.user.id
+      // this.login = response.data.user.login
+      // this.account = response.data.user.account
+      // this.name = response.data.user.name
+      // this.surname = response.data.user.surname
+      // this.email = response.data.user.email
+      // this.type = response.data.user.type
+      // this.token = response.data.token
+      // this.pubsubToken = response.data.pubsub
+      // this.status = response.data.user.status
+      // this.connected = false
     },
 
     async loginByEmail(payload: { email: string; password: string }) {

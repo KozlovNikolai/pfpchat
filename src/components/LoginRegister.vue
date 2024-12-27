@@ -57,8 +57,8 @@ const formData: Ref<{
 }> = ref({
   name: '',
   surname: '',
-  email: 'cmd@cmd.ru',
-  password: '123456',
+  email: '',
+  password: '',
 })
 
 const loading = ref(false)
