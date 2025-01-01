@@ -5,6 +5,7 @@ import { ChatSocket } from 'src/services/ChatSocket'
 import { API_BASE_URL, API_WS_URL } from 'src/config/api'
 import { useChatsStore } from 'src/stores/chat'
 import { useCommonStore } from './common'
+import { useUserStore } from './user'
 
 export const useAuthStore = defineStore('auth', {
   state: (): AuthState => ({
@@ -101,9 +102,14 @@ export const useAuthStore = defineStore('auth', {
       this.socket.connect()
       this.connected = true
 
+      const userStore = useUserStore()
       const chats = useChatsStore()
       chats.getChats()
       chats.currentChatID = response.data.current_chat_id
+      for (let i = 0; i < chats.chatsArray.length; i++) {
+        userStore.getChatUsers(chats.chatsArray[i].id)
+        console.log('get users for chat: ', chats.chatsArray[i].id)
+      }
       const cStore = useCommonStore()
       cStore.moveTo('start')
     },
