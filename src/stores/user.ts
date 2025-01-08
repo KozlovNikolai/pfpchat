@@ -22,11 +22,9 @@ export const useUserStore = defineStore('users', {
         console.warn(`User with ID ${user.id} already exists.`)
       }
     },
-
     getUserByID(id: number): ChatUser | undefined {
       return this.users.get(id)
     },
-
     async getChatUsers(chatID: number) {
       const authStore = useAuthStore()
       const response = await axios.get(

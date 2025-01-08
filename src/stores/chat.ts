@@ -36,49 +36,10 @@ export const useChatsStore = defineStore('chats', {
     setChats(chats: Chat[]) {
       this.chats = new Map(chats.map((chat) => [chat.id, chat]))
     },
-    // setMessages(chatID: number, messages: ChatMessage[]) {
-    //   this.chats = new Map(chats.map((chat) => [chat.id, chat]))
-    // },
     clear() {
       this.chats = new Map<number, Chat>()
     },
-    // async enterToChat(chatid: number) {
-    //   const authStore = useAuthStore()
-    //   if (!authStore.isConnected) {
-    //     //   await axios.get(
-    //     //     `http://localhost:8443/auth/enter/${authStore.getPubsub}?chat_id=${chatid}`,
-    //     //     {
-    //     //       headers: { Authorization: `Bearer ${authStore.getToken}` },
-    //     //     }
-    //     //   )
-    //     //   this.setUsers(response.data)
-    //   }
-    //   // this.socket.connect()
-    // },
 
-    // addUser(user: ChatUser) {
-    //   if (!this.users.has(user.id)) {
-    //     this.users.set(user.id, user)
-    //   } else {
-    //     console.warn(`User with ID ${user.id} already exists.`)
-    //   }
-    // },
-
-    // addMessage(message: ChatMessage) {
-    //   this.messages.push(message)
-    // },
-
-    // sendMessage(content: string) {
-    //   if (!this.socket) {
-    //     console.error('WebSocket не подключен')
-    //     return
-    //   }
-
-    //   this.socket.sendMessage({
-    //     action: 'send-message',
-    //     content,
-    //   })
-    // },
     async getChats() {
       const authStore = useAuthStore()
       const response = await axios.get(`${API_BASE_URL}/auth/getChats`, {
@@ -173,5 +134,47 @@ export const useChatsStore = defineStore('chats', {
   },
 })
 
+// setMessages(chatID: number, messages: ChatMessage[]) {
+//   this.chats = new Map(chats.map((chat) => [chat.id, chat]))
+// },
+
 // /** @type {{ id: number, name: string, chat_type: string }} */
 // chatDetails: { id: 0, name: '', chat_type: '' },
+
+// async enterToChat(chatid: number) {
+//   const authStore = useAuthStore()
+//   if (!authStore.isConnected) {
+//     //   await axios.get(
+//     //     `http://localhost:8443/auth/enter/${authStore.getPubsub}?chat_id=${chatid}`,
+//     //     {
+//     //       headers: { Authorization: `Bearer ${authStore.getToken}` },
+//     //     }
+//     //   )
+//     //   this.setUsers(response.data)
+//   }
+//   // this.socket.connect()
+// },
+
+// addUser(user: ChatUser) {
+//   if (!this.users.has(user.id)) {
+//     this.users.set(user.id, user)
+//   } else {
+//     console.warn(`User with ID ${user.id} already exists.`)
+//   }
+// },
+
+// addMessage(message: ChatMessage) {
+//   this.messages.push(message)
+// },
+
+// sendMessage(content: string) {
+//   if (!this.socket) {
+//     console.error('WebSocket не подключен')
+//     return
+//   }
+
+//   this.socket.sendMessage({
+//     action: 'send-message',
+//     content,
+//   })
+// },
