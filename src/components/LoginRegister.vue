@@ -1,6 +1,14 @@
 <template>
   <q-form>
     <q-input
+      v-if="tab === 'byToken'"
+      v-model="token"
+      class="q-mb-md"
+      outlined
+      label="Token"
+      @blur="updateToken"
+    />
+    <q-input
       v-if="tab === 'register'"
       v-model="formData.name"
       class="q-mb-md"
@@ -15,6 +23,7 @@
       label="Surname"
     />
     <q-input
+      v-if="tab === 'register' || tab === 'login'"
       v-model="formData.email"
       class="q-mb-md"
       outlined
@@ -22,6 +31,7 @@
       label="Email"
     />
     <q-input
+      v-if="tab === 'register' || tab === 'login'"
       v-model="formData.password"
       class="q-mb-md"
       outlined
@@ -41,25 +51,39 @@
 </template>
 
 <script setup lang="ts">
-import { Ref, ref } from 'vue'
+import { computed, Ref, ref } from 'vue'
 import { useAuthStore } from 'src/stores/auth'
 import { AxiosError } from 'axios'
+import { useLocalStore } from 'src/stores/localstorage'
 
 const props = defineProps<{ tab: string }>()
 
-const store = useAuthStore()
+const authStore = useAuthStore()
+const localStore = useLocalStore()
 
 const formData: Ref<{
   name: string
   surname: string
   email: string
   password: string
+  token: string
 }> = ref({
   name: '',
   surname: '',
   email: '',
   password: '',
+  token: '',
 })
+const token = computed({
+  get: () => localStore.token,
+  set: (value) => {
+    localStore.setToken(value)
+  },
+})
+
+const updateToken = () => {
+  localStore.setToken(token.value)
+}
 
 const loading = ref(false)
 
@@ -67,7 +91,7 @@ const submitForm = () => {
   loading.value = true
 
   if (props.tab === 'login') {
-    store
+    authStore
       .loginByEmail(formData.value)
       .catch((e: AxiosError) => {
         console.log(e)
@@ -75,9 +99,19 @@ const submitForm = () => {
       .finally(() => {
         loading.value = false
       })
-  } else {
-    store
+  } else if (props.tab === 'register') {
+    authStore
       .register(formData.value)
+      .catch((e: AxiosError) => {
+        console.log(e)
+      })
+      .finally(() => {
+        loading.value = false
+      })
+  } else if (props.tab === 'byToken') {
+    formData.value.token = token.value
+    authStore
+      .loginByToken(formData.value)
       .catch((e: AxiosError) => {
         console.log(e)
       })
