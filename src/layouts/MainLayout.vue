@@ -22,7 +22,15 @@
         <q-toolbar-title class="absolute-center">
           {{ title }}
         </q-toolbar-title>
-
+        <q-btn
+          v-if="cStore.path === 'chat' || cStore.path === 'start'"
+          @click="goSearch"
+          icon="search"
+          flat
+          no-caps
+          dense
+          label="Search"
+        />
         <q-btn
           v-if="!store.getUser?.userId"
           @click="auth"
@@ -67,6 +75,7 @@
       <PageStart v-if="cStore.path === 'start'" />
       <PageAuth v-else-if="cStore.path === 'auth'" />
       <PageChat v-else-if="cStore.path === 'chat'" />
+      <PageSearch v-else-if="cStore.path === 'search'" />
     </q-page-container>
   </q-layout>
 </template>
@@ -142,6 +151,8 @@ const title = computed(() => {
       return 'Login'
     case 'chat':
       return 'Chat'
+    case 'search':
+      return 'Search'
     default:
       return 'Sputnik'
   }
@@ -155,6 +166,10 @@ const logout = () => {
 
 const goBack = () => {
   cStore.moveTo('start')
+}
+
+const goSearch = () => {
+  cStore.moveTo('search')
 }
 
 const auth = () => {

@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 
-type Path = 'auth' | 'chat' | 'start' | 'scroll'
+type Path = 'auth' | 'chat' | 'start' | 'scroll' | 'search'
 
 type CommonStore = {
   path: Path
