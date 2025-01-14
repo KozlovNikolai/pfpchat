@@ -23,3 +23,10 @@ export type userItem = {
 export interface ChatMessage {
   content: string
 }
+
+export interface EssentialLinkProps {
+  title: string
+  caption?: string
+  link?: string
+  icon?: string
+}

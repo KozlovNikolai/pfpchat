@@ -22,7 +22,7 @@
 
         <q-item-section>
           <q-item-label>ID:{{ chat.id }}</q-item-label>
-          <q-item-label>{{ chat.name }}</q-item-label>
+          <q-item-label>{{ chatName(chat) }}</q-item-label>
           <q-item-label>{{ chat.chat_type }}</q-item-label>
         </q-item-section>
       </q-item>
@@ -34,10 +34,34 @@
 import { useChatsStore } from 'src/stores/chat'
 import { useCommonStore } from 'src/stores/common'
 import { useUserStore } from 'src/stores/user'
+import { Chat } from 'src/models/Chat'
+import { useAuthStore } from 'src/stores/auth'
 
 const chatsStore = useChatsStore()
 const comStore = useCommonStore()
 const userStore = useUserStore()
+const auth = useAuthStore()
+
+const chatName = (chat: Chat) => {
+  if (chat.chat_type === 'private') {
+    const parts = chat.name.split('_')
+    if (Number(parts[0]) === auth.userId) {
+      return (
+        userStore.users.get(Number(parts[1]))?.name +
+        ' ' +
+        userStore.users.get(Number(parts[1]))?.surname
+      )
+    } else {
+      return (
+        userStore.users.get(Number(parts[0]))?.name +
+        ' ' +
+        userStore.users.get(Number(parts[0]))?.surname
+      )
+    }
+  }
+
+  return chat.name
+}
 
 const toChat = (id: number) => {
   chatsStore.currentChatID = id

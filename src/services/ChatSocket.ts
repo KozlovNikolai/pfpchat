@@ -9,7 +9,6 @@ export class ChatSocket {
     this.url = url
   }
 
-  // connect(token: string) {
   connect() {
     console.log('connecting start')
     console.log(`socket: ${this.socket}`)
@@ -41,13 +40,6 @@ export class ChatSocket {
       console.warn('WebSocket отключен')
     }
   }
-
-  // private authenticate(token: string) {
-  //   this.sendMessage({
-  //     action: 'auth',
-  //     token,
-  //   })
-  // }
 
   sendMessage(data: Record<string, unknown>) {
     if (this.socket?.readyState === WebSocket.OPEN) {
@@ -82,19 +74,28 @@ export class ChatSocket {
     }
   }
 
-  // private handleNewMessage(data: any) {
-  //   const chatStore = useChatStore()
-  //   // const notifyStore = useNotifyStore()
-
-  //   const newMessage = new ChatMessage(data)
-  //   chatStore.addMessage(newMessage)
-
-  //   // notifyStore.sendAcceptNotify(`Новое сообщение от ${data.senderName}`)
-  // }
-
   disconnect() {
     if (this.socket) {
       this.socket.close()
     }
   }
 }
+
+// connect(token: string) {
+
+// private authenticate(token: string) {
+//   this.sendMessage({
+//     action: 'auth',
+//     token,
+//   })
+// }
+
+// private handleNewMessage(data: any) {
+//   const chatStore = useChatStore()
+//   // const notifyStore = useNotifyStore()
+
+//   const newMessage = new ChatMessage(data)
+//   chatStore.addMessage(newMessage)
+
+//   // notifyStore.sendAcceptNotify(`Новое сообщение от ${data.senderName}`)
+// }

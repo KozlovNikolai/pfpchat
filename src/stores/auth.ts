@@ -5,6 +5,7 @@ import { ChatSocket } from 'src/services/ChatSocket'
 import { API_BASE_URL, API_WS_URL } from 'src/config/api'
 import { useChatsStore } from 'src/stores/chat'
 import { useCommonStore } from './common'
+import { useUserStore } from './user'
 
 export const useAuthStore = defineStore('auth', {
   state: (): AuthState => ({
@@ -101,9 +102,48 @@ export const useAuthStore = defineStore('auth', {
       this.socket.connect()
       this.connected = true
 
+      const userStore = useUserStore()
       const chats = useChatsStore()
       chats.getChats()
       chats.currentChatID = response.data.current_chat_id
+      for (let i = 0; i < chats.chatsArray.length; i++) {
+        userStore.getChatUsers(chats.chatsArray[i].id)
+        console.log('get users for chat: ', chats.chatsArray[i].id)
+      }
+      const cStore = useCommonStore()
+      cStore.moveTo('start')
+    },
+
+    async loginByToken(payload: { token: string }) {
+      const response = await axios.get(`${API_BASE_URL}/sputnik/login`, {
+        headers: { Authorization: `Bearer ${payload.token}` },
+      })
+      this.userId = response.data.user.id
+      this.login = response.data.user.login
+      this.account = response.data.user.account
+      this.name = response.data.user.name
+      this.surname = response.data.user.surname
+      this.email = response.data.user.email
+      this.type = response.data.user.type
+      this.token = response.data.token
+      this.pubsubToken = response.data.pubsub
+      this.status = response.data.user.status
+      this.connected = false
+
+      this.socket = new ChatSocket(
+        `${API_WS_URL}/subscribe/${this.pubsubToken}`
+      )
+      this.socket.connect()
+      this.connected = true
+
+      const userStore = useUserStore()
+      const chats = useChatsStore()
+      chats.getChats()
+      chats.currentChatID = response.data.current_chat_id
+      for (let i = 0; i < chats.chatsArray.length; i++) {
+        userStore.getChatUsers(chats.chatsArray[i].id)
+        console.log('get users for chat: ', chats.chatsArray[i].id)
+      }
       const cStore = useCommonStore()
       cStore.moveTo('start')
     },
