@@ -1,50 +1,32 @@
 <template>
-  <q-page>
-    <div class="chat">
-      <div
-        class="message-list"
-        ref="messageList"
+  <q-page class="flex q-pa-md">
+    <q-list
+      class="full-width"
+      separator
+    >
+      <q-item
+        v-for="chat in chatsStore.chatsArray"
+        :key="chat.id"
+        clickable
+        v-ripple
+        @click="() => toChat(chat.id)"
       >
-        <q-chat-message
-          v-for="message in chatsStore.getterChat(chatsStore.currentChatID)
-            ?.messages"
-          :key="message.id"
-          :name="
-            message.sender_id != authStore.userId
-              ? userStore.users.get(message.sender_id)?.name
-              : 'Me'
-          "
-          :text="[message.text]"
-          :sent="message.sender_id == authStore.userId ? true : false"
-        />
-      </div>
-      <q-footer elevated>
-        <q-toolbar>
-          <q-form class="full-width">
-            <q-input
-              v-model="newMessage"
-              @keyup.enter="sendMessage"
-              bg-color="white"
-              outlined
-              rounded
-              label="Message"
-              dense
-            >
-              <template v-slot:after>
-                <q-btn
-                  round
-                  dense
-                  flat
-                  @click="sendMessage"
-                  color="white"
-                  icon="send"
-                />
-              </template>
-            </q-input>
-          </q-form>
-        </q-toolbar>
-      </q-footer>
-    </div>
+        <q-item-section avatar>
+          <q-avatar
+            color="primary"
+            text-color="white"
+          >
+            {{ chat.name.charAt(0) }}
+          </q-avatar>
+        </q-item-section>
+
+        <q-item-section>
+          <q-item-label>ID:{{ chat.id }}</q-item-label>
+          <q-item-label>{{ chatName(chat) }}</q-item-label>
+          <q-item-label>{{ chat.chat_type }}</q-item-label>
+        </q-item-section>
+      </q-item>
+    </q-list>
   </q-page>
 </template>
 
