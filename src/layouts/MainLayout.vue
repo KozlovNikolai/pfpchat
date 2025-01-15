@@ -11,7 +11,7 @@
           @click="toggleLeftDrawer"
         />
         <q-btn
-          v-if="cStore.path === 'chat'"
+          v-if="cStore.path === 'chat' || cStore.path === 'search'"
           @click="goBack"
           icon="arrow_back"
           flat

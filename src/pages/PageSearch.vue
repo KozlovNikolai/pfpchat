@@ -8,17 +8,22 @@
       label="Введите текст для поиска"
       debounce="300"
     />
-
-    <q-list
-      class="user-list"
-      @scroll="onScroll"
-    >
+  </div>
+  <div
+    @scroll="onScroll"
+    style="height: 500px; overflow-y: auto; border: 1px solid #ccc"
+  >
+    <q-list class="user-list">
       <q-item
         v-for="user in storeFind.users"
         :key="user.id"
         class="q-my-sm"
         clickable
-        @click="onUserClick(user.id)"
+        @click="
+          () => {
+            toPrivateChat(user.id)
+          }
+        "
         v-ripple
       >
         <q-item-section avatar>
@@ -58,14 +63,21 @@
 
 <script lang="ts" setup>
 import { ref, watch } from 'vue'
-import axios from 'axios'
+import axios, { AxiosError } from 'axios'
 import { useUserFindStore } from 'src/stores/search'
 import { useAuthStore } from 'src/stores/auth'
 import { API_BASE_URL } from 'src/config/api'
+import { useChatsStore } from 'src/stores/chat'
+import { useUserStore } from 'src/stores/user'
+import { useCommonStore } from 'src/stores/common'
 
+const userStore = useUserStore()
+const chatsStore = useChatsStore()
 const storeFind = useUserFindStore()
 const inputText = ref('')
 const loading = ref(false)
+const comStore = useCommonStore()
+const authStore = useAuthStore()
 
 // Функция для загрузки пользователей
 const loadUsers = async (search: string, start: number, stop: number) => {
@@ -73,7 +85,6 @@ const loadUsers = async (search: string, start: number, stop: number) => {
   loading.value = true
   console.log('loading: ', loading.value)
   try {
-    const authStore = useAuthStore()
     const response = await axios.get(
       `${API_BASE_URL}/auth/getusers?search=${search}&start=${start}&stop=${stop}`,
       {
@@ -109,9 +120,42 @@ const onScroll = async (event: Event) => {
   }
 }
 
-// Обработчик клика по пользователю
-const onUserClick = (id: number) => {
-  console.log('Выбран пользователь с ID:', id) // Здесь добавляем отладочный вывод
+const toPrivateChat = (id: number) => {
+  let privateChatName: string = ''
+  if (id > authStore.getUser.userId) {
+    privateChatName = authStore.getUser.userId + '_' + id
+  } else {
+    privateChatName = id + '_' + authStore.getUser.userId
+  }
+
+  let pchat = chatsStore.getChatByName(privateChatName)
+  if (pchat === undefined) {
+    chatsStore
+      .createPrivateChat({ user_two_id: id })
+      .catch((e: AxiosError) => {
+        console.log(e)
+      })
+      .then(() => {
+        chatsStore.getChats()
+        pchat = chatsStore.getChatByName(privateChatName)
+        if (pchat === undefined) {
+          console.error('не удалось создать приватный чат')
+        } else {
+          chatsStore.currentChatID = pchat.id
+        }
+      })
+  } else {
+    chatsStore.currentChatID = pchat.id
+  }
+
+  userStore.getChatUsers(id)
+  chatsStore.getChatMessages({
+    chatID: id,
+    initMsgID: 0,
+    before: 0,
+    after: 1000,
+  })
+  comStore.moveTo('chat')
 }
 
 watch(inputText, () => {

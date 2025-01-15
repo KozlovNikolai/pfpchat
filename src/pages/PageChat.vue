@@ -6,7 +6,7 @@
         ref="messageList"
       >
         <q-chat-message
-          v-for="message in chatsStore.getterChat(chatsStore.currentChatID)
+          v-for="message in chatsStore.getChatByID(chatsStore.currentChatID)
             ?.messages"
           :key="message.id"
           :name="

@@ -16,7 +16,7 @@ export const useChatsStore = defineStore('chats', {
       console.log('GET CHATS ARRAY')
       return Array.from(state.chats.entries()).map(([chatID, value]) => ({
         id: chatID,
-        name: value.name, // Можно заменить на реальное значение email
+        name: value.name,
         account_id: value.account_id,
         chat_type: value.chat_type,
         last_message_id: value.last_message_id,
@@ -26,9 +26,19 @@ export const useChatsStore = defineStore('chats', {
         updated_at: value.updated_at,
       }))
     },
-    getterChat: (state) => {
+    getChatByID: (state) => {
       return (id: number) => {
         return state.chats.get(id)
+      }
+    },
+    getChatByName: (state) => {
+      return (name: string): Chat | undefined => {
+        for (const [key, value] of state.chats.entries()) {
+          if (name === value.name) {
+            return state.chats.get(key)
+          }
+        }
+        return undefined
       }
     },
   },
@@ -129,6 +139,27 @@ export const useChatsStore = defineStore('chats', {
         console.log(`Message sent to Chat with ID ${req.chatID}.`)
       } else {
         console.error(`Message not send to chat with ID ${req.chatID}.`)
+      }
+    },
+    async createPrivateChat(req: { user_two_id: number }) {
+      const authStore = useAuthStore()
+      const response = await axios.post(
+        `${API_BASE_URL}/auth/createPrivateChat`,
+        {
+          user_two_id: req.user_two_id,
+        },
+        {
+          headers: { Authorization: `Bearer ${authStore.getToken}` },
+        }
+      )
+      const resp = response.data
+
+      if (resp.status === 201) {
+        console.log(`New private chat created with ID ${resp.id}.`)
+      } else {
+        console.error(
+          `New private chat NOT created with status ${resp.status}.`
+        )
       }
     },
   },
