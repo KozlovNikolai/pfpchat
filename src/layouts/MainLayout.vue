@@ -139,6 +139,7 @@ import { useCommonStore } from 'src/stores/common'
 import PageStart from 'src/pages/PageStart.vue'
 import PageAuth from 'src/pages/PageAuth.vue'
 import PageChat from 'src/pages/PageChat.vue'
+import PageSearch from 'src/pages/PageSearch.vue'
 // import ScrollPage from 'src/pages/ScrollPage.vue'
 
 const store = useAuthStore()
