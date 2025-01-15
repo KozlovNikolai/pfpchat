@@ -2,16 +2,19 @@
   <div>
     <q-input
       v-model="inputText"
-      @input="onInputChange"
+      type="search"
+      class="q-mb-md"
+      outlined
       label="Введите текст для поиска"
       debounce="300"
     />
+
     <q-list
       class="user-list"
       @scroll="onScroll"
     >
       <q-item
-        v-for="user in store.users"
+        v-for="user in storeFind.users"
         :key="user.id"
         class="q-my-sm"
         clickable
@@ -28,18 +31,18 @@
         </q-item-section>
 
         <q-item-section>
-          <q-item-label>{{ user.name }}</q-item-label>
+          <q-item-label>{{ user.name + ' ' + user.surname }}</q-item-label>
           <q-item-label
             caption
             lines="1"
-            >{{ user.name }}</q-item-label
+            >{{ user.email }}</q-item-label
           >
         </q-item-section>
 
         <q-item-section side>
           <q-icon
             name="chat_bubble"
-            color="green"
+            :color="user.status == 'online' ? 'green' : 'grey'"
           />
         </q-item-section>
       </q-item>
@@ -58,8 +61,9 @@ import { ref, watch } from 'vue'
 import axios from 'axios'
 import { useUserFindStore } from 'src/stores/search'
 import { useAuthStore } from 'src/stores/auth'
+import { API_BASE_URL } from 'src/config/api'
 
-const store = useUserFindStore()
+const storeFind = useUserFindStore()
 const inputText = ref('')
 const loading = ref(false)
 
@@ -71,12 +75,12 @@ const loadUsers = async (search: string, start: number, stop: number) => {
   try {
     const authStore = useAuthStore()
     const response = await axios.get(
-      `http://localhost:8443/auth/getusers?search=${search}&start=${start}&stop=${stop}`,
+      `${API_BASE_URL}/auth/getusers?search=${search}&start=${start}&stop=${stop}`,
       {
         headers: { Authorization: `Bearer ${authStore.getToken}` },
       }
     )
-    store.addUsers(response.data)
+    storeFind.addUsers(response.data)
   } catch (error) {
     console.error('Ошибка при загрузке пользователей:', error)
   } finally {
@@ -89,7 +93,7 @@ const loadUsers = async (search: string, start: number, stop: number) => {
 const onInputChange = async () => {
   console.log('Изменение текста во вводе...')
   const search = inputText.value
-  store.clearUsers()
+  storeFind.clearUsers()
   await loadUsers(search, 0, 19)
 }
 
@@ -100,7 +104,7 @@ const onScroll = async (event: Event) => {
     target.scrollHeight - target.scrollTop <= target.clientHeight + 5 &&
     !loading.value
   ) {
-    const currentLength = store.users.length
+    const currentLength = storeFind.users.length
     await loadUsers(inputText.value, currentLength, currentLength + 19)
   }
 }
@@ -110,9 +114,14 @@ const onUserClick = (id: number) => {
   console.log('Выбран пользователь с ID:', id) // Здесь добавляем отладочный вывод
 }
 
+watch(inputText, () => {
+  console.log('watch input text')
+  onInputChange()
+})
+
 // Подписываемся на изменения в стейте
 watch(
-  () => store.users,
+  () => storeFind.users,
   (newUsers) => {
     if (newUsers.length === 0) loadUsers('', 0, 19)
   },

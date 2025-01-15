@@ -140,8 +140,9 @@ import PageStart from 'src/pages/PageStart.vue'
 import PageAuth from 'src/pages/PageAuth.vue'
 import PageChat from 'src/pages/PageChat.vue'
 import PageSearch from 'src/pages/PageSearch.vue'
-// import ScrollPage from 'src/pages/ScrollPage.vue'
+import { useUserFindStore } from 'src/stores/search'
 
+const storeFind = useUserFindStore()
 const store = useAuthStore()
 const cStore = useCommonStore()
 const title = computed(() => {
@@ -160,6 +161,8 @@ const title = computed(() => {
 })
 
 const logout = () => {
+  cStore.moveTo('auth')
+  storeFind.clearUsers()
   store.logout().catch((e: AxiosError) => {
     console.log(e)
   })
