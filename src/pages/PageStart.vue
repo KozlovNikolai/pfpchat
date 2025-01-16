@@ -46,12 +46,18 @@ const chatName = (chat: Chat) => {
   if (chat.chat_type === 'private') {
     const parts = chat.name.split('_')
     if (Number(parts[0]) === auth.userId) {
+      if (userStore.users.get(Number(parts[1])) === undefined) {
+        userStore.reqGetUser({ profile: '', login: '', id: Number(parts[1]) })
+      }
       return (
         userStore.users.get(Number(parts[1]))?.name +
         ' ' +
         userStore.users.get(Number(parts[1]))?.surname
       )
     } else {
+      if (userStore.users.get(Number(parts[0])) === undefined) {
+        userStore.reqGetUser({ profile: '', login: '', id: Number(parts[0]) })
+      }
       return (
         userStore.users.get(Number(parts[0]))?.name +
         ' ' +
