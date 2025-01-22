@@ -1,5 +1,5 @@
-import { useAuthStore } from 'src/stores/auth'
-import { useChatsStore } from 'src/stores/chat'
+import { useAuthStoreSM } from 'src/stores/auth'
+import { useChatsStoreSM } from 'src/stores/chat'
 
 export class ChatSocket {
   private socket?: WebSocket
@@ -10,7 +10,7 @@ export class ChatSocket {
   }
 
   connect() {
-    console.log('connecting start')
+    console.log('socket connecting start')
     console.log(`socket: ${this.socket}`)
     console.log(`ready State: ${this.socket?.readyState}`)
     if (this.socket && this.socket.readyState === WebSocket.OPEN) {
@@ -34,7 +34,7 @@ export class ChatSocket {
     }
 
     this.socket.onclose = () => {
-      const authStore = useAuthStore()
+      const authStore = useAuthStoreSM()
       authStore.logout
       //this.disconnect()
       console.warn('WebSocket отключен')
@@ -56,7 +56,7 @@ export class ChatSocket {
       switch (message.action) {
         case 'new-message':
           // this.handleNewMessage(message)
-          const chatsStore = useChatsStore()
+          const chatsStore = useChatsStoreSM()
           console.log('NEW MESSAGE')
           chatsStore.getChatMessages({
             chatID: message.chat_id,

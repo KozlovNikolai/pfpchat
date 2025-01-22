@@ -52,14 +52,14 @@
 
 <script setup lang="ts">
 import { computed, Ref, ref } from 'vue'
-import { useAuthStore } from 'src/stores/auth'
+import { useAuthStoreSM } from 'src/stores/auth'
 import { AxiosError } from 'axios'
-import { useLocalStore } from 'src/stores/localstorage'
+import { useLocalStoreSM } from 'src/stores/localstorage'
 
 const props = defineProps<{ tab: string }>()
 
-const authStore = useAuthStore()
-const localStore = useLocalStore()
+const authStore = useAuthStoreSM()
+const localStore = useLocalStoreSM()
 
 const formData: Ref<{
   name: string

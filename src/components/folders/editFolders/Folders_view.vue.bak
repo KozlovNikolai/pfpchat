@@ -1,0 +1,64 @@
+<template>
+  <help-view-layout header="folders">
+    <template #content>
+      <q-list v-for="(folder, i) in folderStore.getCustomFolders" :key="i">
+        <q-item class="row full-width items-center ch_folder_item">
+          <q-icon name="folder" size="md" />
+          <div class="q-ml-md column non-selectable">
+            <q-item-label>{{ folder.name }}</q-item-label>
+            <!-- <q-item-label
+              >{{ folder.chats.length }} {{ $t('chats') }}</q-item-label
+            > -->
+          </div>
+          <q-btn flat dense class="q-ml-auto" @click="() => Delete(folder)">
+            <q-icon name="sym_o_delete" size="md" />
+          </q-btn>
+        </q-item>
+        <q-separator />
+      </q-list>
+    </template>
+    <template #footer>
+      <q-btn
+        flat
+        dense
+        icon="sym_o_add_circle"
+        :label="$t('create_new_folder')"
+        @click="showCreateNewFolder"
+        class="full-width font-black-normal-14"
+      />
+      <q-item-label class="q-pl-sm font-black-normal-10">{{
+        $t(
+          'create folders for different groups of chats and quickly switch between then',
+        )
+      }}</q-item-label>
+    </template>
+  </help-view-layout>
+</template>
+
+<script setup lang="ts">
+import HelpViewLayout from 'layouts/HelpViewLayout.vue';
+import CreateFolder from '../createFolder/CreateFolder.vue';
+
+import { useI18n } from 'vue-i18n';
+import { useQuasar } from 'quasar';
+import { useFolderStore } from 'src/stores/folder/folder';
+import { useUserStore } from 'src/stores/user/user';
+import { FolderItem } from 'src/models/folder/folder';
+
+const folderStore = useFolderStore(),
+  userStore = useUserStore(),
+  $q = useQuasar(),
+  lang = useI18n();
+
+function Delete(folder: FolderItem) {
+  folderStore.deleteFolder(folder, lang);
+}
+
+function showCreateNewFolder() {
+  $q.dialog({
+    component: CreateFolder,
+  }).onOk(async (data) => {
+    await folderStore.createFolder(data.name, userStore.getUser.id, data.rooms);
+  });
+}
+</script>

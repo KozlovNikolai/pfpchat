@@ -7,6 +7,7 @@
 
 // Configuration for your app
 // https://v2.quasar.dev/quasar-cli-vite/quasar-config-js
+const federation = require('@originjs/vite-plugin-federation')
 
 const { configure } = require('quasar/wrappers')
 const path = require('path')
@@ -37,15 +38,27 @@ module.exports = configure(function (/* ctx */) {
 
       'roboto-font', // optional, you are not bound to it
       'material-icons', // optional, you are not bound to it
+      'material-symbols-outlined',
     ],
 
     // Full list of options: https://v2.quasar.dev/quasar-cli-vite/quasar-config-js#build
     build: {
       target: {
-        browser: ['es2019', 'edge88', 'firefox78', 'chrome87', 'safari13.1'],
-        node: 'node20',
+        browser: ['es2022'],
+        node: 'node22',
       },
+      cssCodeSplit: true,
+      sourcemap: false,
+      ignorePublicFolder: false,
+      minify: false,
 
+      // @PATH
+      publicPath:
+        process.env.NODE_ENV === 'production'
+          ? // ? 'https://chat.sputnik-monitor.ru/'
+            'http://localhost:9001/'
+          : // 'http://localhost:3001/'
+            '/',
       vueRouterMode: 'hash', // available values: 'hash', 'history'
       // vueRouterBase,
       // vueDevtools,
@@ -59,7 +72,7 @@ module.exports = configure(function (/* ctx */) {
       // rawDefine: {}
       // ignorePublicFolder: true,
       // minify: false,
-      // polyfillModulePreload: true,
+      polyfillModulePreload: true,
       // distDir
 
       // extendViteConf (viteConf) {},
@@ -80,6 +93,19 @@ module.exports = configure(function (/* ctx */) {
             include: path.resolve(__dirname, './src/i18n/**'),
           },
         ],
+        federation({
+          name: 'chatbot',
+          filename: 'remoteEntry.js',
+          exposes: {
+            './ChatBot': `./src/RemoteApp.vue?v=[${Date.now()}01.06]`,
+            // './ChatBot': './src/RemoteApp.vue',
+          },
+          shared: ['vue', 'quasar', 'pinia', '@quasar/extras', 'vue-i18n'],
+          // shared: [],
+          // {
+          //   ...require('./package.json').dependencies
+          // }
+        }),
         [
           'vite-plugin-checker',
           {
@@ -103,7 +129,9 @@ module.exports = configure(function (/* ctx */) {
 
     // https://v2.quasar.dev/quasar-cli-vite/quasar-config-js#framework
     framework: {
-      config: {},
+      config: {
+        notify: {},
+      },
 
       // iconSet: 'material-icons', // Quasar icon set
       // lang: 'en-US', // Quasar language pack
@@ -117,7 +145,7 @@ module.exports = configure(function (/* ctx */) {
       // directives: [],
 
       // Quasar plugins
-      plugins: [],
+      plugins: ['Notify', 'Loading', 'Dialog', 'AppFullscreen'],
     },
 
     // animations: 'all', // --- includes all animations
@@ -204,7 +232,7 @@ module.exports = configure(function (/* ctx */) {
       builder: {
         // https://www.electron.build/configuration/configuration
 
-        appId: 'smackchatpkg',
+        appId: 'chatbot-frontend',
       },
     },
 

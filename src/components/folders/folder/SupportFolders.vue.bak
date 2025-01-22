@@ -1,0 +1,27 @@
+<template>
+  <div class="ch_bg-grey_2 ch_support_bages">
+    <div class="full-height column justify-start">
+      <ch-folder
+        v-for="folder in FolderItem.getSystemFolders()"
+        :key="folder.id"
+        v-bind="{ folder }"
+      />
+      <ch-folder
+        v-for="folder in folderStore.getFolders"
+        :key="folder.id"
+        v-bind="{ folder }"
+      />
+      <ch-folder class="q-mt-auto" :folder="FolderItem.getEditFolder()" />
+    </div>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { useFolderStore } from 'src/stores/folder/folder';
+import { FolderItem } from 'src/models/folder/folder';
+import ChFolder from './items/ChFolder.vue';
+
+const folderStore = useFolderStore();
+</script>
+
+<style module lang="scss"></style>

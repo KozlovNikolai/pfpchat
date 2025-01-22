@@ -51,14 +51,14 @@
 
 <script setup lang="ts">
 import { Ref, ref } from 'vue'
-import { useChatsStore } from 'src/stores/chat'
-import { useUserStore } from 'src/stores/user'
-import { useAuthStore } from 'src/stores/auth'
+import { useChatsStoreSM } from 'src/stores/chat'
+import { useUserStoreSM } from 'src/stores/user'
+import { useAuthStoreSM } from 'src/stores/auth'
 // import { Chat } from 'src/models/Chat'
 
-const chatsStore = useChatsStore()
-const userStore = useUserStore()
-const authStore = useAuthStore()
+const chatsStore = useChatsStoreSM()
+const userStore = useUserStoreSM()
+const authStore = useAuthStoreSM()
 
 // const virtualListRef = ref<VNodeRef | null>(null)
 // const virtualListIndex = ref<number>(15)
@@ -100,11 +100,13 @@ const sendMessage = () => {
   })
   newMessage.value = ''
 }
+
+// onMounted(console.log('onMounted'))
 </script>
 
 <style>
 .chat {
-  height: 1000px; /* Задайте нужную высоту */
+  height: 800px; /* Задайте нужную высоту */
   overflow-y: auto; /* Поддержка прокрутки */
 }
 .message-list {

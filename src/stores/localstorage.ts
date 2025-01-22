@@ -1,7 +1,7 @@
 // src/store/storage.ts
 import { defineStore } from 'pinia'
 
-export const useLocalStore = defineStore('localStorage', {
+export const useLocalStoreSM = defineStore('localStorageSM', {
   state: () => ({
     items: JSON.parse(localStorage.getItem('items') || '[]') as Array<{
       id: number

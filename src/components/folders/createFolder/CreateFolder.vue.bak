@@ -1,0 +1,124 @@
+<template>
+  <q-dialog :class="$style.dialog" ref="dialogRef" @hide="onDialogHide">
+    <q-card class="q-dialog-plugin">
+      <q-item-label
+        class="font-black-bold-14-sm ch_text-grey text-center q-pa-md"
+        >{{ $t('new_folder') }}</q-item-label
+      >
+      <q-form @submit="onOKClick" @reset="onHide">
+        <q-item-label class="font-black-bold-14-sm ch_text-grey q-pl-md">{{
+          $t('folder_name')
+        }}</q-item-label>
+        <q-input
+          class="no-padding q-mx-md ch_border-bottom-grey q-mt-xs"
+          ref="ch_input"
+          v-model="name"
+          dense
+          borderless
+          outlined
+          lazy-rules
+          :rules="[(val) => val && val.length > 0]"
+        >
+          <template v-slot:prepend>
+            <q-icon name="folder" class="ch_text-primary" />
+          </template>
+          <template v-slot:append>
+            <q-icon
+              v-if="name"
+              name="sym_o_close"
+              class="cursor-pointer"
+              @click="clearSearch"
+            />
+          </template>
+        </q-input>
+        <q-card-section
+          class="no-padding"
+          v-if="selectedRooms && selectedRooms.length !== 0"
+        >
+          <chat-mini-box
+            class="q-mx-md q-my-sm"
+            v-bind="{ rooms: selectedRooms }"
+          />
+        </q-card-section>
+        <widgets-layout class="q-mx-md q-my-sm">
+          <card-list
+            v-bind="{ items: rooms, isCreateFolder: true }"
+            @open_chat="$event.setSelected(true)"
+            style="max-height: 400px"
+          />
+        </widgets-layout>
+
+        <q-card-section class="no-padding row justify-end q-my-sm q-mr-sm">
+          <q-btn
+            :label="$t('cancel')"
+            type="reset"
+            flat
+            class="ch_button_form"
+          />
+          <q-btn
+            :label="$t('Create')"
+            class="ch_button_form"
+            flat
+            type="submit"
+          />
+        </q-card-section>
+      </q-form>
+    </q-card>
+  </q-dialog>
+</template>
+
+<script setup lang="ts">
+import { ref, computed } from 'vue';
+import { useDialogPluginComponent } from 'quasar';
+import { ChatRoom } from 'src/models/chat/room';
+import { useChatStore } from 'src/stores/chat';
+import { useNotifyStore } from 'stores/notifyQuasar';
+
+import ChatMiniBox from 'components/folders/boxes/ChatMiniBox.vue';
+import CardList from 'components/chat/ChatCard/CardList.vue';
+import WidgetsLayout from 'layouts/WidgetsLayout.vue';
+
+const name = ref(),
+  store = useChatStore(),
+  notifyStore = useNotifyStore(),
+  rooms = ref(
+    store.getRooms.map((room) => room.cloneRoomWithResetCR()) as ChatRoom[],
+  ),
+  selectedRooms = computed(() => rooms.value.filter((room) => room.isSelected)),
+  ch_input = ref();
+
+function clearSearch() {
+  ch_input.value.blur();
+  name.value = '';
+}
+
+defineEmits([...useDialogPluginComponent.emits]);
+
+const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } =
+  useDialogPluginComponent();
+
+function reset() {
+  name.value = '';
+  selectedRooms.value.forEach((room) => room.setSelected(false));
+}
+
+function onHide() {
+  reset();
+  onDialogCancel();
+}
+
+function onOKClick() {
+  if (!name.value) {
+    notifyStore.sendRejectNotify('form is not valid');
+    return;
+  }
+  onDialogOK({ rooms: selectedRooms.value, name: name.value });
+  reset();
+}
+</script>
+
+<style module lang="scss">
+.dialog {
+  z-index: 100000 !important;
+}
+</style>

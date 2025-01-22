@@ -64,20 +64,20 @@
 <script lang="ts" setup>
 import { ref, watch } from 'vue'
 import axios, { AxiosError } from 'axios'
-import { useUserFindStore } from 'src/stores/search'
-import { useAuthStore } from 'src/stores/auth'
+import { useUserFindStoreSM } from 'src/stores/search'
+import { useAuthStoreSM } from 'src/stores/auth'
 import { API_BASE_URL } from 'src/config/api'
-import { useChatsStore } from 'src/stores/chat'
-import { useUserStore } from 'src/stores/user'
-import { useCommonStore } from 'src/stores/common'
+import { useChatsStoreSM } from 'src/stores/chat'
+import { useUserStoreSM } from 'src/stores/user'
+import { useCommonStoreSM } from 'src/stores/common'
 
-const userStore = useUserStore()
-const chatsStore = useChatsStore()
-const storeFind = useUserFindStore()
+const userStore = useUserStoreSM()
+const chatsStore = useChatsStoreSM()
+const storeFind = useUserFindStoreSM()
 const inputText = ref('')
 const loading = ref(false)
-const comStore = useCommonStore()
-const authStore = useAuthStore()
+const comStore = useCommonStoreSM()
+const authStore = useAuthStoreSM()
 
 // Функция для загрузки пользователей
 const loadUsers = async (search: string, start: number, stop: number) => {

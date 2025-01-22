@@ -3,13 +3,18 @@ import axios from 'axios'
 import { AuthState } from './../models/AuthState'
 import { ChatSocket } from 'src/services/ChatSocket'
 import { API_BASE_URL, API_WS_URL } from 'src/config/api'
-import { useChatsStore } from 'src/stores/chat'
-import { useCommonStore } from './common'
-import { useUserStore } from './user'
+import { useChatsStoreSM } from 'src/stores/chat'
+import { useCommonStoreSM } from './common'
+import { useUserStoreSM } from './user'
+import { ChatUser } from 'src/models/ChatUser'
 
-export const useAuthStore = defineStore('auth', {
+const userStore = useUserStoreSM()
+const chats = useChatsStoreSM()
+
+export const useAuthStoreSM = defineStore('authSM', {
   state: (): AuthState => ({
     userId: 0,
+    profile: '',
     login: '',
     account: '',
     name: '',
@@ -21,8 +26,25 @@ export const useAuthStore = defineStore('auth', {
     status: 'disconnected',
     connected: false,
     socket: null,
+    lastOnline: 0,
   }),
   getters: {
+    getProfileUser(state): ChatUser {
+      return {
+        id: state.userId,
+        user_ext_id: 0,
+        login: state.login,
+        profile: state.profile,
+        name: state.name,
+        surname: state.surname,
+        email: state.email,
+        type: state.type,
+        created_at: 0,
+        updated_at: 0,
+        status: state.status,
+        lastOnline: state.lastOnline,
+      }
+    },
     isConnected(state): boolean {
       return state.connected
     },
@@ -46,6 +68,15 @@ export const useAuthStore = defineStore('auth', {
     },
     getFullName(state): string {
       return state.name + ' ' + state.surname
+    },
+    getContactDetailConfig(state) {
+      return [
+        { name: '(888) 8888-8888', icon: 'sym_o_phone' },
+        { name: state.email, icon: 'sym_o_mail' },
+      ]
+    },
+    getAvatar() {
+      return null
     },
   },
   actions: {
@@ -95,6 +126,7 @@ export const useAuthStore = defineStore('auth', {
       this.pubsubToken = response.data.pubsub
       this.status = response.data.user.status
       this.connected = false
+      this.lastOnline = response.data.user.last_online
 
       this.socket = new ChatSocket(
         `${API_WS_URL}/subscribe/${this.pubsubToken}`
@@ -102,15 +134,15 @@ export const useAuthStore = defineStore('auth', {
       this.socket.connect()
       this.connected = true
 
-      const userStore = useUserStore()
-      const chats = useChatsStore()
+      const userStore = useUserStoreSM()
+      const chats = useChatsStoreSM()
       chats.getChats()
       chats.currentChatID = response.data.current_chat_id
       for (let i = 0; i < chats.chatsArray.length; i++) {
         userStore.getChatUsers(chats.chatsArray[i].id)
         console.log('get users for chat: ', chats.chatsArray[i].id)
       }
-      const cStore = useCommonStore()
+      const cStore = useCommonStoreSM()
       cStore.moveTo('start')
     },
 
@@ -119,6 +151,7 @@ export const useAuthStore = defineStore('auth', {
         headers: { Authorization: `Bearer ${payload.token}` },
       })
       this.userId = response.data.user.id
+      this.profile = response.data.user.profile
       this.login = response.data.user.login
       this.account = response.data.user.account
       this.name = response.data.user.name
@@ -129,6 +162,7 @@ export const useAuthStore = defineStore('auth', {
       this.pubsubToken = response.data.pubsub
       this.status = response.data.user.status
       this.connected = false
+      this.lastOnline = response.data.user.last_online
 
       this.socket = new ChatSocket(
         `${API_WS_URL}/subscribe/${this.pubsubToken}`
@@ -136,15 +170,18 @@ export const useAuthStore = defineStore('auth', {
       this.socket.connect()
       this.connected = true
 
-      const userStore = useUserStore()
-      const chats = useChatsStore()
       chats.getChats()
       chats.currentChatID = response.data.current_chat_id
-      for (let i = 0; i < chats.chatsArray.length; i++) {
-        userStore.getChatUsers(chats.chatsArray[i].id)
-        console.log('get users for chat: ', chats.chatsArray[i].id)
-      }
-      const cStore = useCommonStore()
+
+      setTimeout(() => {
+        console.log('lenght chat list:', chats.chatsArray.length)
+        for (let i = 0; i < chats.chatsArray.length; i++) {
+          userStore.getChatUsers(chats.chatsArray[i].id)
+          console.log('get users for chat: ', chats.chatsArray[i].id)
+        }
+      }, 1000)
+
+      const cStore = useCommonStoreSM()
       cStore.moveTo('start')
     },
 
@@ -173,8 +210,9 @@ export const useAuthStore = defineStore('auth', {
       this.connected = false
       this.socket?.disconnect()
       this.socket = null
+      this.lastOnline = 0
 
-      const chats = useChatsStore()
+      const chats = useChatsStoreSM()
       chats.clear()
     },
   },

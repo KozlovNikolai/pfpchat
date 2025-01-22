@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { ChatUser } from 'src/models/ChatUser'
 
-export const useUserFindStore = defineStore('userFind', {
+export const useUserFindStoreSM = defineStore('userFindSM', {
   state: () => ({
     users: [] as Array<ChatUser>,
   }),

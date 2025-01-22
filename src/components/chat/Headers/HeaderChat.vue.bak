@@ -1,0 +1,61 @@
+<template>
+  <div
+    class="row justify-center items-center full-width q-mb-none ch_bg-grey_2"
+  >
+    <div
+      v-if="chatType !== 'rooms' && store.getIsMiniMode && !isDialog"
+      class="absolute-left row"
+    >
+      <header-buttons v-bind="{ currentRoom, isDialog }" />
+    </div>
+    <q-item-label
+      class="font-black-normal-14 absolute-center col row justify-center"
+    >
+      {{ $t('Chat') }}
+    </q-item-label>
+
+    <q-btn
+      v-if="!isDialog"
+      size="14px"
+      flat
+      class="q-ml-auto q-pa-sm ch_text-dark"
+      :class="$style.ch_button"
+      @click="store.toggleExtendedChat"
+    >
+      <!-- <q-icon name="chrome_reader_mode"  /> -->
+      <q-icon name="sym_o_picture_in_picture_alt" />
+    </q-btn>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { PropType } from 'vue'
+
+import { useChatStore, ChatTypes } from 'src/stores/chat'
+import { ChatRoom } from 'src/models/chat/room'
+
+import HeaderButtons from 'components/chat/Buttons/HeaderButtons.vue'
+
+const store = useChatStore()
+
+defineProps({
+  currentRoom: {
+    type: Object as PropType<ChatRoom>,
+  },
+  isDialog: {
+    default: false,
+  },
+  chatType: {
+    type: String as PropType<ChatTypes>,
+  },
+})
+</script>
+
+<style module lang="scss">
+.ch_icon {
+  z-index: 1;
+}
+.ch_button {
+  margin-right: 32px;
+}
+</style>

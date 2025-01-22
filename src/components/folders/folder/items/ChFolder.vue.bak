@@ -1,0 +1,52 @@
+<template>
+  <div class="no-padding ch_folder full-width">
+    <q-btn
+      flat
+      class="fit column q-px-md"
+      :class="[folder.getColorFolder(folderStore.getActiveFolder?.id)]"
+      @click.stop="() => onClick(folder)"
+    >
+      <div class="column items-center">
+        <q-icon
+          size="md"
+          :class="[folder.getColorFolder(folderStore.getActiveFolder?.id)]"
+          :name="folder.icon"
+        ></q-icon>
+        <p class="no-margin font-black-normal-10 ch_folder_name">
+          {{ $t(folder?.name) }}
+        </p>
+      </div>
+    </q-btn>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { PropType } from 'vue';
+import { useChatStore } from 'src/stores/chat';
+import { useFolderStore } from 'src/stores/folder/folder';
+import { FolderItem } from 'src/models/folder/folder';
+import { useUserStore } from 'src/stores/user/user';
+
+const store = useChatStore(),
+  userStore = useUserStore(),
+  folderStore = useFolderStore();
+
+defineProps({
+  folder: {
+    type: Object as PropType<FolderItem>,
+    required: true,
+  },
+});
+
+function onClick(folder: FolderItem) {
+  if (folder.name !== 'edit') {
+    store.setChatType('rooms');
+    folderStore.setActiveFolder(folder);
+    store.fetchRoomsByFolder(folder, userStore.getUser.id);
+  } else {
+    store.setChatType('folders');
+  }
+}
+</script>
+
+<style module lang="scss"></style>

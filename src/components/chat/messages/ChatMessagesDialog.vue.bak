@@ -1,0 +1,68 @@
+<template>
+  <cmp-dialog
+    ref="cmp_dialog"
+    v-model="isVisible"
+    @hide="hide"
+    :seamless="false"
+    :isSingleChat="true"
+    width="350px"
+    height="510px"
+  >
+    <template v-slot:header>
+      <header-chat
+        v-bind="{ currentRoom, chatType: 'messages', isDialog: true }"
+      />
+    </template>
+    <template v-slot:body>
+      <message-list :messages="msgs" :room="currentRoom" />
+    </template>
+  </cmp-dialog>
+</template>
+
+<script setup lang="ts">
+import { ref, PropType, onMounted, watch } from 'vue';
+
+import { ChatRoom } from 'src/models/chat/room';
+
+import MessageList from 'components/messages/MessageList.vue';
+import HeaderChat from 'components/chat/Headers/HeaderChat.vue';
+import CmpDialog from 'src/components/common/CmpDialog.vue';
+import { useMessageStore } from 'src/stores/message/message';
+
+defineEmits(['send_message', 'update:message', 'update:files']);
+
+const props = defineProps({
+  currentRoom: {
+    type: Object as PropType<ChatRoom>,
+    required: true,
+  },
+  height: Number,
+  width: {
+    default: '350px',
+  },
+});
+
+const isVisible = ref(true),
+  msgStore = useMessageStore(),
+  msgs = ref(),
+  cmp_dialog = ref();
+
+const hide = () => {
+  isVisible.value = false;
+};
+
+watch(props, async (props) => {
+  msgs.value = await msgStore.loadChatMessages(props.currentRoom);
+});
+
+onMounted(async () => {
+  msgs.value = await msgStore.loadChatMessages(props.currentRoom);
+
+  if (props.width) {
+    cmp_dialog.value.show('bottom-right', {
+      width: +props.width.split('px')[0],
+      height: props.height,
+    });
+  }
+});
+</script>

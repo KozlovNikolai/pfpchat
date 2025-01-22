@@ -33,6 +33,9 @@ export class Chat {
     this.updated_at = data.updated_at
   }
 
+  // get getAvatar() {
+  //   return null
+  // }
   // get payloadFromSendMessage() {
   //   return {
   //     action: 'send-message',

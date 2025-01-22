@@ -1,0 +1,32 @@
+<template>
+  <widgets-layout class="q-pt-xs">
+    <q-card-section class="row q-pa-none ch_boxes_cards q-gutter-xs scroll">
+      <div
+        v-for="item in rooms"
+        :key="item.id"
+        class="row items-center ch_boxes_card cursor-pointer"
+        @click="item.setSelected(false)"
+      >
+        <user-avatar v-bind="{ item, size: '25px' }" />
+        <q-item-label class="q-mx-xs">{{ item.getFullName }}</q-item-label>
+      </div>
+    </q-card-section>
+  </widgets-layout>
+</template>
+
+<script setup lang="ts">
+import { PropType } from 'vue';
+import { ChatRoom } from 'src/models/chat/room';
+
+import { ChatUser } from 'src/models/chat/user';
+
+import WidgetsLayout from 'layouts/WidgetsLayout.vue';
+import UserAvatar from 'src/components/user/UserAvatar.vue';
+
+defineProps({
+  rooms: {
+    type: Array as PropType<ChatRoom[] | ChatUser[]>,
+    required: true,
+  },
+});
+</script>

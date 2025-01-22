@@ -2,11 +2,11 @@ import { defineStore } from 'pinia'
 // import { ChatMessage } from 'src/models/ChatMessage'
 // import { ChatUser } from 'src/models/ChatUser'
 import { Chat } from 'src/models/Chat'
-import { useAuthStore } from './auth'
+import { useAuthStoreSM } from './auth'
 import axios from 'axios'
 import { API_BASE_URL } from 'src/config/api'
 
-export const useChatsStore = defineStore('chats', {
+export const useChatsStoreSM = defineStore('chatsSM', {
   state: () => ({
     currentChatID: 0 as number,
     chats: new Map<number, Chat>(),
@@ -51,7 +51,7 @@ export const useChatsStore = defineStore('chats', {
     },
 
     async getChats() {
-      const authStore = useAuthStore()
+      const authStore = useAuthStoreSM()
       const response = await axios.get(`${API_BASE_URL}/auth/getChats`, {
         headers: { Authorization: `Bearer ${authStore.getToken}` },
       })
@@ -59,7 +59,7 @@ export const useChatsStore = defineStore('chats', {
     },
 
     async getChat(chatID: number) {
-      const authStore = useAuthStore()
+      const authStore = useAuthStoreSM()
       const response = await axios.get(
         `${API_BASE_URL}/auth/enter/${authStore.getPubsub}?chat_id=${chatID}`,
         {
@@ -82,7 +82,7 @@ export const useChatsStore = defineStore('chats', {
       before: number
       after: number
     }) {
-      const authStore = useAuthStore()
+      const authStore = useAuthStoreSM()
       const response = await axios.post(
         `${API_BASE_URL}/auth/getchatmsgs`,
         {
@@ -121,7 +121,7 @@ export const useChatsStore = defineStore('chats', {
       text: string
       msgType: string
     }) {
-      const authStore = useAuthStore()
+      const authStore = useAuthStoreSM()
       const response = await axios.post(
         `${API_BASE_URL}/auth/sendmsg`,
         {
@@ -142,7 +142,7 @@ export const useChatsStore = defineStore('chats', {
       }
     },
     async createPrivateChat(req: { user_two_id: number }) {
-      const authStore = useAuthStore()
+      const authStore = useAuthStoreSM()
       const response = await axios.post(
         `${API_BASE_URL}/auth/createPrivateChat`,
         {
@@ -161,6 +161,20 @@ export const useChatsStore = defineStore('chats', {
           `New private chat NOT created with status ${resp.status}.`
         )
       }
+    },
+    // getTime() {
+    //   if (!this.getLastMsg) return
+    //   const timeFormat =
+    //     date.getDateDiff(this.getLastMsg, new Date(), 'hours') > 24
+    //       ? 'ddd'
+    //       : 'HH:mm'
+    //   return date.formatDate(this.getLastMsg, timeFormat)
+    // },
+    getTime(): number {
+      return 123456
+    },
+    getUnreadCount(): number {
+      return Math.floor(Math.random() * 255)
     },
   },
 })

@@ -10,6 +10,7 @@ export class ChatUser {
   created_at: number
   updated_at: number
   status: string
+  lastOnline: number
 
   constructor(data: {
     id: number
@@ -23,6 +24,7 @@ export class ChatUser {
     created_at: number
     updated_at: number
     status: string
+    lastOnline: number
   }) {
     this.id = data.id
     this.user_ext_id = data.user_ext_id
@@ -35,8 +37,11 @@ export class ChatUser {
     this.created_at = data.created_at
     this.updated_at = data.updated_at
     this.status = data.status
+    this.lastOnline = data.lastOnline
   }
-
+  // get getAvatar() {
+  //   return null
+  // }
   // get payloadFromSendMessage() {
   //   return {
   //     action: 'send-message',

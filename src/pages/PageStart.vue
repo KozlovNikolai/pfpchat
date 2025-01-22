@@ -31,16 +31,16 @@
 </template>
 
 <script setup lang="ts">
-import { useChatsStore } from 'src/stores/chat'
-import { useCommonStore } from 'src/stores/common'
-import { useUserStore } from 'src/stores/user'
+import { useChatsStoreSM } from 'src/stores/chat'
+import { useCommonStoreSM } from 'src/stores/common'
+import { useUserStoreSM } from 'src/stores/user'
 import { Chat } from 'src/models/Chat'
-import { useAuthStore } from 'src/stores/auth'
+import { useAuthStoreSM } from 'src/stores/auth'
 
-const chatsStore = useChatsStore()
-const comStore = useCommonStore()
-const userStore = useUserStore()
-const auth = useAuthStore()
+const chatsStore = useChatsStoreSM()
+const comStore = useCommonStoreSM()
+const userStore = useUserStoreSM()
+const auth = useAuthStoreSM()
 
 const chatName = (chat: Chat) => {
   if (chat.chat_type === 'private') {

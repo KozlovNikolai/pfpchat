@@ -2,6 +2,7 @@ import { ChatSocket } from 'src/services/ChatSocket'
 
 export class AuthState {
   userId: number
+  profile: string
   login: string
   account: string
   name: string
@@ -13,9 +14,11 @@ export class AuthState {
   status: string
   connected: boolean
   socket: ChatSocket | null
+  lastOnline: number
 
   constructor(data: {
     userId: number
+    profile: string
     login: string
     account: string
     name: string
@@ -27,8 +30,10 @@ export class AuthState {
     status: string
     connected: boolean
     socket: ChatSocket
+    lastOnline: number
   }) {
     this.userId = data.userId
+    this.profile = data.profile
     this.name = data.name
     this.login = data.login
     this.account = data.account
@@ -41,7 +46,11 @@ export class AuthState {
     this.status = data.status
     this.connected = data.connected
     this.socket = data.socket
+    this.lastOnline = data.lastOnline
   }
+  // get getAvatar() {
+  //   return null
+  // }
   // get payloadFromSendMessage() {
   //   return {
   //     action: 'send-message',
