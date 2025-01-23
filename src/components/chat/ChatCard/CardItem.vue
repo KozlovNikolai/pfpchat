@@ -5,7 +5,7 @@
     square
     dense
     class="full-width q-pa-xs no-shadow ch_card_item-chat"
-    @click="$emit('open_chat', item)"
+    @click="$emit('open_chat', props.item)"
     :active="true"
     active-class="ch_active_class"
   >
@@ -17,26 +17,18 @@
         class="q-mr-sm"
         flat
         dense
-        @click.stop="$emit('user_info', item)"
+        @click.stop="$emit('user_info', props.item)"
       >
         <user-avatar
           v-bind="{ item, size: isCreateFolder ? '25px' : '50px' }"
         />
       </q-btn>
       <q-item-section class="col q-mt-xs overflow-hidden">
-        <div
-          class="row items-center no-wrap font-black-bold-14 ch_text_ellipsis"
-        >
-          <template>
-            <q-item-label>
-              {{ item.name }}
-            </q-item-label>
-          </template>
-        </div>
-
+        <q-item-label>{{ chat_name }}</q-item-label>
         <q-item-label
           v-if="
-            !isCreateFolder && chatStore.getChatByID(item.id)?.last_message_id
+            !isCreateFolder &&
+            chatStore.getChatByID(props.item.id)?.last_message_id
           "
           :class="$style.last_msg"
           class="font-black-normal-12 q-pt-xs ch_text-grey ch_text_ellipsis"
@@ -70,12 +62,12 @@
           :class="$style.description"
         >
           <q-btn
-            v-if="item.chat_type === 'private'"
+            v-if="props.item.chat_type === 'private'"
             padding="none"
             size="xs"
             icon="open_in_new"
             class="q-ml-auto q-mr-xs ch_text-dark"
-            @click.stop="() => openFrameWindow(item)"
+            @click.stop="() => openFrameWindow(props.item)"
           />
           <div :class="[$style['ChatFolder-transition'], 'q-ml-auto']">
             <div :class="$style.ChatFolder">
@@ -94,19 +86,21 @@
 </template>
 
 <script setup lang="ts">
-import { onBeforeMount, PropType, ref } from 'vue'
+import { onMounted, PropType, ref } from 'vue'
 // import { useQuasar } from 'quasar'
 import { Chat } from 'src/models/Chat'
-// const userStore = useUserStoreSM()
-// const auth = useAuthStoreSM()
 // import { defineAsyncComponent } from 'vue'
 import UserAvatar from 'src/components/user/UserAvatar.vue'
 // import { useUserStoreSM } from 'src/stores/user'
 // import { useAuthStoreSM } from 'src/stores/auth'
 import { useChatsStoreSM } from 'src/stores/chat'
-
+import { useUserStoreSM } from 'src/stores/user'
+import { useAuthStoreSM } from 'src/stores/auth'
+const userStore = useUserStoreSM()
+const auth = useAuthStoreSM()
 const chatStore = useChatsStoreSM()
 const itemlast_message_message = ref('last mssage example')
+const chat_name = ref<string>()
 // const $q = useQuasar()
 const isCreateFolder = ref(false)
 defineEmits(['open_chat', 'user_info'])
@@ -116,10 +110,11 @@ const props = defineProps({
     required: true,
   },
 })
-console.log('input item:', props.item)
-function printItem(item: Chat) {
-  console.log('input item:', item)
-}
+
+console.log('input item:', props.item.name)
+// function printItem(item: Chat) {
+//   console.log('on mounted input item:', item)
+// }
 
 function openFrameWindow(item: Chat) {
   console.log('openFrameWindow called', item)
@@ -136,34 +131,36 @@ function openFrameWindow(item: Chat) {
 //   })
 // }
 
-// const chatName = (chat: Chat) => {
-//   if (chat.chat_type === 'private') {
-//     const parts = chat.name.split('_')
-//     if (Number(parts[0]) === auth.userId) {
-//       if (userStore.users.get(Number(parts[1])) === undefined) {
-//         userStore.reqGetUser({ profile: '', login: '', id: Number(parts[1]) })
-//       }
-//       return (
-//         userStore.users.get(Number(parts[1]))?.name +
-//         ' ' +
-//         userStore.users.get(Number(parts[1]))?.surname
-//       )
-//     } else {
-//       if (userStore.users.get(Number(parts[0])) === undefined) {
-//         userStore.reqGetUser({ profile: '', login: '', id: Number(parts[0]) })
-//       }
-//       return (
-//         userStore.users.get(Number(parts[0]))?.name +
-//         ' ' +
-//         userStore.users.get(Number(parts[0]))?.surname
-//       )
-//     }
-//   }
+const chatName = (chat: Chat) => {
+  if (chat.chat_type === 'private') {
+    const parts = chat.name.split('_')
+    if (Number(parts[0]) === auth.userId) {
+      if (userStore.users.get(Number(parts[1])) === undefined) {
+        userStore.reqGetUser({ profile: '', login: '', id: Number(parts[1]) })
+      }
+      return (
+        userStore.users.get(Number(parts[1]))?.name +
+        ' ' +
+        userStore.users.get(Number(parts[1]))?.surname
+      )
+    } else {
+      if (userStore.users.get(Number(parts[0])) === undefined) {
+        userStore.reqGetUser({ profile: '', login: '', id: Number(parts[0]) })
+      }
+      return (
+        userStore.users.get(Number(parts[0]))?.name +
+        ' ' +
+        userStore.users.get(Number(parts[0]))?.surname
+      )
+    }
+  }
 
-//   return chat.name
-// }
+  return chat.name
+}
 
-onBeforeMount(printItem(props.item))
+onMounted(() => {
+  chat_name.value = chatName(props.item)
+})
 </script>
 <style module lang="scss">
 .last_msg {

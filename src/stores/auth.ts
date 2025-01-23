@@ -143,12 +143,13 @@ export const useAuthStoreSM = defineStore('authSM', {
           const userStore = useUserStoreSM()
           const chats = useChatsStoreSM()
           chats.getChats().then(() => {
-            chats.currentChatID = response.data.current_chat_id
+            chats.currentChatID = 1
             for (let i = 0; i < chats.chatsArray.length; i++) {
               userStore.getChatUsers(chats.chatsArray[i].id)
               console.log('get users for chat: ', chats.chatsArray[i].id)
             }
           })
+          chats.currentChatID = 1
           const cStore = useCommonStoreSM()
           cStore.moveTo('start')
         })
@@ -181,7 +182,7 @@ export const useAuthStoreSM = defineStore('authSM', {
           this.connected = true
 
           chats.getChats().then(() => {
-            chats.currentChatID = response.data.current_chat_id
+            chats.currentChatID = 1
 
             console.log('lenght chat list:', chats.chatsArray.length)
             for (let i = 0; i < chats.chatsArray.length; i++) {
@@ -189,7 +190,7 @@ export const useAuthStoreSM = defineStore('authSM', {
               console.log('get users for chat: ', chats.chatsArray[i].id)
             }
           })
-
+          chats.currentChatID = 1
           const cStore = useCommonStoreSM()
           cStore.moveTo('start')
         })

@@ -3,7 +3,7 @@
     :room="currentRoom"
     :isMiniMode="cStore.getIsMiniMode"
   >
-    <!-- <message-list v-bind="{ messages, room: currentRoom }" /> -->
+    <message-list v-bind="{ messages, room: currentRoom }" />
   </message-header-layout>
   <ch-loading :loading="isLoading" />
 </template>
@@ -15,7 +15,7 @@ import { useChatsStoreSM } from 'src/stores/chat'
 // import { useMessageStore } from 'src/stores/message/message';
 // import { Chat } from 'src/models/Chat'
 
-// import MessageList from './MessageList.vue'
+import MessageList from './MessageList.vue'
 import MessageHeaderLayout from 'layouts/MessageHeaderLayout.vue'
 import ChLoading from 'components/statuses/ChLoading.vue'
 import { useCommonStoreSM } from 'src/stores/common'
@@ -26,6 +26,9 @@ const cStore = useCommonStoreSM()
 const chatStore = useChatsStoreSM()
 // messagesStore = useMessageStore(),
 // const  messages = computed(() => messagesStore.getChatMessages),
+const messages = computed(
+  () => chatStore.getChatByID(chatStore.currentChatID)?.messages
+)
 const isLoading = ref(false),
   currentRoom = computed(
     () => chatStore.getChatByID(chatStore.currentChatID) as Chat

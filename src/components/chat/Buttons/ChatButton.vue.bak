@@ -1,0 +1,104 @@
+<template>
+  <div
+    :class="$style['draggable-container']"
+    :style="{ top: `${position.y}px`, left: `${position.x}px` }"
+  >
+    <q-btn
+      round
+      class="pulse absolute ch_bg-grey_2 ch_max_zIndex"
+      :disable="store.getIsOpen"
+      @click.stop="openChat"
+      @dragstart="dragStart"
+      @dragend="dragend"
+    >
+      <img src="https://wiki.sputnik-monitor.ru/logo_test.png" />
+    </q-btn>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { ref } from 'vue';
+import { useQuasar } from 'quasar';
+
+import { useChatStore } from 'src/stores/chat';
+
+import ChatDialog from 'src/components/chat/ChatDialog.vue';
+
+const store = useChatStore(),
+  $q = useQuasar(),
+  position = ref({ x: 0, y: 0 }),
+  isDragging = ref(false),
+  offset = ref({ x: 0, y: 0 });
+
+const openChat = () => {
+  if (!store.getIsOpen) {
+    $q.dialog({
+      component: ChatDialog,
+      componentProps: {
+        showCallback: () => store.setIsOpen(true),
+        hideCallback: () => store.setIsOpen(false),
+      },
+    });
+  }
+};
+
+const dragStart = (event: MouseEvent) => {
+  isDragging.value = true;
+  offset.value = {
+    x: event.clientX - position.value.x,
+    y: event.clientY - position.value.y,
+  };
+};
+
+const checkPosition = (event: MouseEvent) => {
+  const offsetX = offset.value.x;
+  const offsetY = offset.value.y;
+  const viewport = window.visualViewport;
+
+  let x = event.clientX - offsetX;
+  let y = event.clientY - offsetY;
+
+  if (viewport) {
+    const maxWidth = viewport.width;
+    const maxHeight = viewport.height;
+
+    if (event.clientX >= maxWidth - 30) {
+      x = maxWidth - 80;
+    } else if (event.clientX <= 30) {
+      x = 10;
+    }
+
+    if (event.clientY >= maxHeight - 30) {
+      y = 120;
+    } else if (event.clientY <= 30) {
+      y = -maxHeight + 200;
+    }
+  }
+
+  return { x, y };
+};
+
+const dragend = (event: MouseEvent) => {
+  if (isDragging.value) {
+    position.value = checkPosition(event);
+  }
+};
+</script>
+
+<style lang="scss">
+@import '../../../css/chat_app.scss';
+</style>
+
+<style module lang="scss">
+.draggable-container {
+  position: absolute;
+  padding: 10px;
+  z-index: 99999;
+}
+.draggeble_icon {
+  cursor: grab;
+  &:active {
+    cursor: grabbing;
+  }
+}
+</style>

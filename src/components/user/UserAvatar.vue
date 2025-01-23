@@ -36,8 +36,9 @@ const props = defineProps({
   },
 })
 
-console.log('user avatar vue: ', props.item, props.size)
-
+if (false) {
+  console.log('user avatar vue: ', props.item, props.size)
+}
 // defineProps({
 //   item: {
 //     type: Object as PropType<Chat | ChatUser>,

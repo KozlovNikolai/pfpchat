@@ -9,17 +9,11 @@
   >
     <template v-slot="{ item }: { item: Chat }">
       <card-item
-        v-if="item instanceof Chat"
         v-bind="{
           item,
         }"
         @open_chat="$emit('open_chat', $event)"
         @user_info="$emit('user_info', $event)"
-      />
-      <card-user
-        v-else
-        v-bind="{ item }"
-        @open_chat="$emit('open_chat', $event)"
       />
     </template>
     <template #after>
@@ -45,7 +39,7 @@ import { onMounted, ref } from 'vue'
 // import { ChatRoom } from 'src/models/chat/room'
 // import { ChatUser } from 'src/models/chat/user'
 import { Chat } from 'src/models/Chat'
-import CardUser from './CardUser.vue'
+// import CardUser from './CardUser.vue'
 import CardItem from './CardItem.vue'
 import { useChatsStoreSM } from 'src/stores/chat'
 
@@ -76,8 +70,8 @@ const onVirtualScroll = (detail: { index: number }) => {
 }
 
 function getSortItems() {
-  console.log(chatsStore.chatsArray)
-  return chatsStore.chatsArray as Chat[]
+  // console.log(chatsStore.chatsArray)
+  return chatsStore.chatsArray
 }
 // function getSortItems() {
 //   if (props?.items?.[0] instanceof ChatRoom) {
