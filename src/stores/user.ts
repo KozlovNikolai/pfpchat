@@ -54,37 +54,40 @@ export const useUserStoreSM = defineStore('usersSM', {
     },
     async getChatUsers(chatID: number) {
       const authStore = useAuthStoreSM()
-      const response = await axios.get(
-        `${API_BASE_URL}/auth/usersByChat?chat_id=${chatID}`,
-        {
+      await axios
+        .get(`${API_BASE_URL}/auth/usersByChat?chat_id=${chatID}`, {
           headers: { Authorization: `Bearer ${authStore.getToken}` },
-        }
-      )
-      this.setUsers(response.data)
+        })
+        .then((response) => {
+          this.setUsers(response.data)
+        })
     },
     async reqGetUser(payload: { profile: string; login: string; id: number }) {
       const authStore = useAuthStoreSM()
-      const response = await axios.get(
-        `${API_BASE_URL}/auth/user?profile=${payload.profile}&login=${payload.login}&id=${payload.id}`,
-        {
-          headers: { Authorization: `Bearer ${authStore.getToken}` },
-        }
-      )
-      const us: ChatUser = {
-        id: response.data.id,
-        user_ext_id: response.data.user_ext_id,
-        login: response.data.login,
-        profile: response.data.profile,
-        name: response.data.name,
-        surname: response.data.surname,
-        email: response.data.email,
-        type: response.data.type,
-        created_at: response.data.created_at,
-        updated_at: response.data.updated_at,
-        status: response.data.status,
-        lastOnline: response.data.last_online,
-      }
-      this.addUser(us)
+      await axios
+        .get(
+          `${API_BASE_URL}/auth/user?profile=${payload.profile}&login=${payload.login}&id=${payload.id}`,
+          {
+            headers: { Authorization: `Bearer ${authStore.getToken}` },
+          }
+        )
+        .then((response) => {
+          const us: ChatUser = {
+            id: response.data.id,
+            user_ext_id: response.data.user_ext_id,
+            login: response.data.login,
+            profile: response.data.profile,
+            name: response.data.name,
+            surname: response.data.surname,
+            email: response.data.email,
+            type: response.data.type,
+            created_at: response.data.created_at,
+            updated_at: response.data.updated_at,
+            status: response.data.status,
+            lastOnline: response.data.last_online,
+          }
+          this.addUser(us)
+        })
     },
     getFullName(id: number): string {
       return this.users.get(id)?.name + ' ' + this.users.get(id)?.surname

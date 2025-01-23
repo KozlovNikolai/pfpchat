@@ -14,17 +14,19 @@ export const useChatsStoreSM = defineStore('chatsSM', {
   getters: {
     chatsArray: (state): Chat[] => {
       console.log('GET CHATS ARRAY')
-      return Array.from(state.chats.entries()).map(([chatID, value]) => ({
-        id: chatID,
-        name: value.name,
-        account_id: value.account_id,
-        chat_type: value.chat_type,
-        last_message_id: value.last_message_id,
-        messages: value.messages,
-        users: value.users,
-        created_at: value.created_at,
-        updated_at: value.updated_at,
-      }))
+      return Array.from(state.chats.entries())
+        .map(([chatID, value]) => ({
+          id: chatID,
+          name: value.name,
+          account_id: value.account_id,
+          chat_type: value.chat_type,
+          last_message_id: value.last_message_id,
+          messages: value.messages,
+          users: value.users,
+          created_at: value.created_at,
+          updated_at: value.updated_at,
+        }))
+        .sort((a, b) => a.id - b.id)
     },
     getChatByID: (state) => {
       return (id: number) => {
@@ -52,29 +54,36 @@ export const useChatsStoreSM = defineStore('chatsSM', {
 
     async getChats() {
       const authStore = useAuthStoreSM()
-      const response = await axios.get(`${API_BASE_URL}/auth/getChats`, {
-        headers: { Authorization: `Bearer ${authStore.getToken}` },
-      })
-      this.setChats(response.data)
+      await axios
+        .get(`${API_BASE_URL}/auth/getChats`, {
+          headers: { Authorization: `Bearer ${authStore.getToken}` },
+        })
+        .then((response) => {
+          this.setChats(response.data)
+        })
     },
 
     async getChat(chatID: number) {
       const authStore = useAuthStoreSM()
-      const response = await axios.get(
-        `${API_BASE_URL}/auth/enter/${authStore.getPubsub}?chat_id=${chatID}`,
-        {
-          headers: { Authorization: `Bearer ${authStore.getToken}` },
-        }
-      )
+      await axios
+        .get(
+          `${API_BASE_URL}/auth/enter/${authStore.getPubsub}?chat_id=${chatID}`,
+          {
+            headers: { Authorization: `Bearer ${authStore.getToken}` },
+          }
+        )
+        .then((response) => {
+          if (Array.isArray(response.data)) {
+            const userIds = response.data
+              .filter(
+                (usr: { id: number }) => usr.id != authStore.getUser.userId
+              )
+              .map((usr) => usr.id)
 
-      if (Array.isArray(response.data)) {
-        const userIds = response.data
-          .filter((usr: { id: number }) => usr.id != authStore.getUser.userId)
-          .map((usr) => usr.id)
-
-        const chat = this.chats.get(chatID)
-        if (chat) chat.users = userIds
-      }
+            const chat = this.chats.get(chatID)
+            if (chat) chat.users = userIds
+          }
+        })
     },
     async getChatMessages(req: {
       chatID: number
@@ -83,38 +92,41 @@ export const useChatsStoreSM = defineStore('chatsSM', {
       after: number
     }) {
       const authStore = useAuthStoreSM()
-      const response = await axios.post(
-        `${API_BASE_URL}/auth/getchatmsgs`,
-        {
-          chat_id: req.chatID,
-          initial_msg_id: req.initMsgID,
-          before: req.before,
-          after: req.after,
-        },
-        {
-          headers: { Authorization: `Bearer ${authStore.getToken}` },
-        }
-      )
-      const messages = response.data
-      const chat = this.chats.get(req.chatID)
-      if (chat) {
-        if (!chat.messages) {
-          chat.messages = []
-        }
-        const existingMessageIds = new Set(
-          chat.messages.map((message) => message.id)
-        )
-        for (const message of messages) {
-          if (!existingMessageIds.has(message.id)) {
-            chat.messages.push(message)
-            existingMessageIds.add(message.id)
+      await axios
+        .post(
+          `${API_BASE_URL}/auth/getchatmsgs`,
+          {
+            chat_id: req.chatID,
+            initial_msg_id: req.initMsgID,
+            before: req.before,
+            after: req.after,
+          },
+          {
+            headers: { Authorization: `Bearer ${authStore.getToken}` },
           }
-        }
+        )
+        .then((response) => {
+          const messages = response.data
+          const chat = this.chats.get(req.chatID)
+          if (chat) {
+            if (!chat.messages) {
+              chat.messages = []
+            }
+            const existingMessageIds = new Set(
+              chat.messages.map((message) => message.id)
+            )
+            for (const message of messages) {
+              if (!existingMessageIds.has(message.id)) {
+                chat.messages.push(message)
+                existingMessageIds.add(message.id)
+              }
+            }
 
-        chat.messages.sort((a, b) => a.id - b.id)
-      } else {
-        console.error(`Chat with ID ${req.chatID} not found.`)
-      }
+            chat.messages.sort((a, b) => a.id - b.id)
+          } else {
+            console.error(`Chat with ID ${req.chatID} not found.`)
+          }
+        })
     },
     async sendMessageToChat(req: {
       chatID: number
@@ -122,45 +134,51 @@ export const useChatsStoreSM = defineStore('chatsSM', {
       msgType: string
     }) {
       const authStore = useAuthStoreSM()
-      const response = await axios.post(
-        `${API_BASE_URL}/auth/sendmsg`,
-        {
-          chat_id: req.chatID,
-          text: req.text,
-          msg_type: req.msgType,
-        },
-        {
-          headers: { Authorization: `Bearer ${authStore.getToken}` },
-        }
-      )
-      const resp = response.data
+      await axios
+        .post(
+          `${API_BASE_URL}/auth/sendmsg`,
+          {
+            chat_id: req.chatID,
+            text: req.text,
+            msg_type: req.msgType,
+          },
+          {
+            headers: { Authorization: `Bearer ${authStore.getToken}` },
+          }
+        )
+        .then((response) => {
+          const resp = response.data
 
-      if (resp === 'message sent') {
-        console.log(`Message sent to Chat with ID ${req.chatID}.`)
-      } else {
-        console.error(`Message not send to chat with ID ${req.chatID}.`)
-      }
+          if (resp === 'message sent') {
+            console.log(`Message sent to Chat with ID ${req.chatID}.`)
+          } else {
+            console.error(`Message not send to chat with ID ${req.chatID}.`)
+          }
+        })
     },
     async createPrivateChat(req: { user_two_id: number }) {
       const authStore = useAuthStoreSM()
-      const response = await axios.post(
-        `${API_BASE_URL}/auth/createPrivateChat`,
-        {
-          user_two_id: req.user_two_id,
-        },
-        {
-          headers: { Authorization: `Bearer ${authStore.getToken}` },
-        }
-      )
-      const resp = response.data
-
-      if (resp.status === 201) {
-        console.log(`New private chat created with ID ${resp.id}.`)
-      } else {
-        console.error(
-          `New private chat NOT created with status ${resp.status}.`
+      await axios
+        .post(
+          `${API_BASE_URL}/auth/createPrivateChat`,
+          {
+            user_two_id: req.user_two_id,
+          },
+          {
+            headers: { Authorization: `Bearer ${authStore.getToken}` },
+          }
         )
-      }
+        .then((response) => {
+          const resp = response.data
+
+          if (response.status === 201) {
+            console.log(`New private chat created with ID ${resp.id}.`)
+          } else {
+            console.error(
+              `New private chat NOT created with status ${response.status}.`
+            )
+          }
+        })
     },
     // getTime() {
     //   if (!this.getLastMsg) return

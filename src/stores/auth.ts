@@ -86,16 +86,20 @@ export const useAuthStoreSM = defineStore('authSM', {
       email: string
       password: string
     }) {
-      const response = await axios.post(`${API_BASE_URL}/signup`, {
-        profile: 'email',
-        login: payload.email,
-        password: payload.password,
-        name: payload.name,
-        surname: payload.surname,
-      })
-      if (response.status === 201) {
-        this.loginByEmail(payload)
-      }
+      await axios
+        .post(`${API_BASE_URL}/signup`, {
+          profile: 'email',
+          login: payload.email,
+          password: payload.password,
+          name: payload.name,
+          surname: payload.surname,
+        })
+        .then((response) => {
+          if (response.status === 201) {
+            this.loginByEmail(payload)
+          }
+        })
+
       // this.userId = response.data.user.id
       // this.login = response.data.user.login
       // this.account = response.data.user.account
@@ -110,110 +114,111 @@ export const useAuthStoreSM = defineStore('authSM', {
     },
 
     async loginByEmail(payload: { email: string; password: string }) {
-      const response = await axios.post(`${API_BASE_URL}/signin`, {
-        profile: 'email',
-        login: payload.email,
-        password: payload.password,
-      })
-      this.userId = response.data.user.id
-      this.login = response.data.user.login
-      this.account = response.data.user.account
-      this.name = response.data.user.name
-      this.surname = response.data.user.surname
-      this.email = response.data.user.email
-      this.type = response.data.user.type
-      this.token = response.data.token
-      this.pubsubToken = response.data.pubsub
-      this.status = response.data.user.status
-      this.connected = false
-      this.lastOnline = response.data.user.last_online
+      await axios
+        .post(`${API_BASE_URL}/signin`, {
+          profile: 'email',
+          login: payload.email,
+          password: payload.password,
+        })
+        .then((response) => {
+          this.userId = response.data.user.id
+          this.login = response.data.user.login
+          this.account = response.data.user.account
+          this.name = response.data.user.name
+          this.surname = response.data.user.surname
+          this.email = response.data.user.email
+          this.type = response.data.user.type
+          this.token = response.data.token
+          this.pubsubToken = response.data.pubsub
+          this.status = response.data.user.status
+          this.connected = false
+          this.lastOnline = response.data.user.last_online
 
-      this.socket = new ChatSocket(
-        `${API_WS_URL}/subscribe/${this.pubsubToken}`
-      )
-      this.socket.connect()
-      this.connected = true
+          this.socket = new ChatSocket(
+            `${API_WS_URL}/subscribe/${this.pubsubToken}`
+          )
+          this.socket.connect()
+          this.connected = true
 
-      const userStore = useUserStoreSM()
-      const chats = useChatsStoreSM()
-      chats.getChats()
-      chats.currentChatID = response.data.current_chat_id
-      for (let i = 0; i < chats.chatsArray.length; i++) {
-        userStore.getChatUsers(chats.chatsArray[i].id)
-        console.log('get users for chat: ', chats.chatsArray[i].id)
-      }
-      const cStore = useCommonStoreSM()
-      cStore.moveTo('start')
+          const userStore = useUserStoreSM()
+          const chats = useChatsStoreSM()
+          chats.getChats().then(() => {
+            chats.currentChatID = response.data.current_chat_id
+            for (let i = 0; i < chats.chatsArray.length; i++) {
+              userStore.getChatUsers(chats.chatsArray[i].id)
+              console.log('get users for chat: ', chats.chatsArray[i].id)
+            }
+          })
+          const cStore = useCommonStoreSM()
+          cStore.moveTo('start')
+        })
     },
 
     async loginByToken(payload: { token: string }) {
-      const response = await axios.get(`${API_BASE_URL}/sputnik/login`, {
-        headers: { Authorization: `Bearer ${payload.token}` },
-      })
-      this.userId = response.data.user.id
-      this.profile = response.data.user.profile
-      this.login = response.data.user.login
-      this.account = response.data.user.account
-      this.name = response.data.user.name
-      this.surname = response.data.user.surname
-      this.email = response.data.user.email
-      this.type = response.data.user.type
-      this.token = response.data.token
-      this.pubsubToken = response.data.pubsub
-      this.status = response.data.user.status
-      this.connected = false
-      this.lastOnline = response.data.user.last_online
+      await axios
+        .get(`${API_BASE_URL}/sputnik/login`, {
+          headers: { Authorization: `Bearer ${payload.token}` },
+        })
+        .then((response) => {
+          this.userId = response.data.user.id
+          this.profile = response.data.user.profile
+          this.login = response.data.user.login
+          this.account = response.data.user.account
+          this.name = response.data.user.name
+          this.surname = response.data.user.surname
+          this.email = response.data.user.email
+          this.type = response.data.user.type
+          this.token = response.data.token
+          this.pubsubToken = response.data.pubsub
+          this.status = response.data.user.status
+          this.connected = false
+          this.lastOnline = response.data.user.last_online
 
-      this.socket = new ChatSocket(
-        `${API_WS_URL}/subscribe/${this.pubsubToken}`
-      )
-      this.socket.connect()
-      this.connected = true
+          this.socket = new ChatSocket(
+            `${API_WS_URL}/subscribe/${this.pubsubToken}`
+          )
+          this.socket.connect()
+          this.connected = true
 
-      chats.getChats()
-      chats.currentChatID = response.data.current_chat_id
+          chats.getChats().then(() => {
+            chats.currentChatID = response.data.current_chat_id
 
-      setTimeout(() => {
-        console.log('lenght chat list:', chats.chatsArray.length)
-        for (let i = 0; i < chats.chatsArray.length; i++) {
-          userStore.getChatUsers(chats.chatsArray[i].id)
-          console.log('get users for chat: ', chats.chatsArray[i].id)
-        }
-      }, 1000)
+            console.log('lenght chat list:', chats.chatsArray.length)
+            for (let i = 0; i < chats.chatsArray.length; i++) {
+              userStore.getChatUsers(chats.chatsArray[i].id)
+              console.log('get users for chat: ', chats.chatsArray[i].id)
+            }
+          })
 
-      const cStore = useCommonStoreSM()
-      cStore.moveTo('start')
+          const cStore = useCommonStoreSM()
+          cStore.moveTo('start')
+        })
     },
 
     async logout() {
-      const response = await axios.get(
-        `${API_BASE_URL}/auth/signout/${this.getPubsub}`,
-        {
+      await axios
+        .get(`${API_BASE_URL}/auth/signout/${this.getPubsub}`, {
           headers: { Authorization: `Bearer ${this.getToken}` },
-        }
-      )
-      // this.status = response.data.status
-      // this.socket?.disconnect()
-      // this.socket = null
-      // this.connected = false
+        })
+        .then((response) => {
+          this.userId = 0
+          this.login = ''
+          this.account = ''
+          this.name = ''
+          this.surname = ''
+          this.email = ''
+          this.type = ''
+          this.token = ''
+          this.pubsubToken = ''
+          this.status = response.data.status
+          this.connected = false
+          this.socket?.disconnect()
+          this.socket = null
+          this.lastOnline = 0
 
-      this.userId = 0
-      this.login = ''
-      this.account = ''
-      this.name = ''
-      this.surname = ''
-      this.email = ''
-      this.type = ''
-      this.token = ''
-      this.pubsubToken = ''
-      this.status = response.data.status
-      this.connected = false
-      this.socket?.disconnect()
-      this.socket = null
-      this.lastOnline = 0
-
-      const chats = useChatsStoreSM()
-      chats.clear()
+          const chats = useChatsStoreSM()
+          chats.clear()
+        })
     },
   },
 })

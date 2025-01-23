@@ -4,7 +4,7 @@
     seamless
   >
     <q-layout
-      view="Lhh lpR fff"
+      view="LHh lpR fFf"
       container
       class="bg-white text-dark"
     >
@@ -114,6 +114,7 @@ import PageSearch from 'src/pages/PageSearch.vue'
 import { useUserFindStoreSM } from 'src/stores/search'
 import { InitializationParams } from 'src/models/common/types'
 const leftDrawerOpen = ref(false)
+
 const linksList: EssentialLinkProps[] = [
   {
     title: 'Docs',

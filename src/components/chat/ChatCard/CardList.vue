@@ -76,7 +76,8 @@ const onVirtualScroll = (detail: { index: number }) => {
 }
 
 function getSortItems() {
-  return chatsStore.chatsArray
+  console.log(chatsStore.chatsArray)
+  return chatsStore.chatsArray as Chat[]
 }
 // function getSortItems() {
 //   if (props?.items?.[0] instanceof ChatRoom) {

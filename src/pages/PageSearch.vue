@@ -136,26 +136,36 @@ const toPrivateChat = (id: number) => {
         console.log(e)
       })
       .then(() => {
-        chatsStore.getChats()
-        pchat = chatsStore.getChatByName(privateChatName)
-        if (pchat === undefined) {
-          console.error('не удалось создать приватный чат')
-        } else {
-          chatsStore.currentChatID = pchat.id
-        }
+        chatsStore.getChats().then(() => {
+          pchat = chatsStore.getChatByName(privateChatName)
+          if (pchat === undefined) {
+            console.error('не удалось создать приватный чат')
+          } else {
+            chatsStore.currentChatID = pchat.id
+            userStore.getChatUsers(Number(pchat?.id)).then(() => {
+              chatsStore.getChatMessages({
+                chatID: Number(pchat?.id),
+                initMsgID: 0,
+                before: 0,
+                after: 1000,
+              })
+              comStore.moveTo('chat')
+            })
+          }
+        })
       })
   } else {
+    console.log('toPrivateChat')
     chatsStore.currentChatID = pchat.id
+    userStore.getChatUsers(id)
+    chatsStore.getChatMessages({
+      chatID: id,
+      initMsgID: 0,
+      before: 0,
+      after: 1000,
+    })
+    comStore.moveTo('chat')
   }
-
-  userStore.getChatUsers(id)
-  chatsStore.getChatMessages({
-    chatID: id,
-    initMsgID: 0,
-    before: 0,
-    after: 1000,
-  })
-  comStore.moveTo('chat')
 }
 
 watch(inputText, () => {

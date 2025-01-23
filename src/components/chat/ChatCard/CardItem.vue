@@ -27,15 +27,8 @@
         <div
           class="row items-center no-wrap font-black-bold-14 ch_text_ellipsis"
         >
-          <template v-if="item.chat_type === 'private'">
-            <q-item-label> {{ chatName(item) }} </q-item-label>
-          </template>
-          <template v-else>
-            <q-icon
-              name="sym_o_group"
-              class="q-mr-xs"
-            />
-            <q-item-label class="">
+          <template>
+            <q-item-label>
               {{ item.name }}
             </q-item-label>
           </template>
@@ -104,12 +97,12 @@
 import { onBeforeMount, PropType, ref } from 'vue'
 // import { useQuasar } from 'quasar'
 import { Chat } from 'src/models/Chat'
-const userStore = useUserStoreSM()
-const auth = useAuthStoreSM()
+// const userStore = useUserStoreSM()
+// const auth = useAuthStoreSM()
 // import { defineAsyncComponent } from 'vue'
 import UserAvatar from 'src/components/user/UserAvatar.vue'
-import { useUserStoreSM } from 'src/stores/user'
-import { useAuthStoreSM } from 'src/stores/auth'
+// import { useUserStoreSM } from 'src/stores/user'
+// import { useAuthStoreSM } from 'src/stores/auth'
 import { useChatsStoreSM } from 'src/stores/chat'
 
 const chatStore = useChatsStoreSM()
@@ -123,7 +116,7 @@ const props = defineProps({
     required: true,
   },
 })
-
+console.log('input item:', props.item)
 function printItem(item: Chat) {
   console.log('input item:', item)
 }
@@ -143,32 +136,32 @@ function openFrameWindow(item: Chat) {
 //   })
 // }
 
-const chatName = (chat: Chat) => {
-  if (chat.chat_type === 'private') {
-    const parts = chat.name.split('_')
-    if (Number(parts[0]) === auth.userId) {
-      if (userStore.users.get(Number(parts[1])) === undefined) {
-        userStore.reqGetUser({ profile: '', login: '', id: Number(parts[1]) })
-      }
-      return (
-        userStore.users.get(Number(parts[1]))?.name +
-        ' ' +
-        userStore.users.get(Number(parts[1]))?.surname
-      )
-    } else {
-      if (userStore.users.get(Number(parts[0])) === undefined) {
-        userStore.reqGetUser({ profile: '', login: '', id: Number(parts[0]) })
-      }
-      return (
-        userStore.users.get(Number(parts[0]))?.name +
-        ' ' +
-        userStore.users.get(Number(parts[0]))?.surname
-      )
-    }
-  }
+// const chatName = (chat: Chat) => {
+//   if (chat.chat_type === 'private') {
+//     const parts = chat.name.split('_')
+//     if (Number(parts[0]) === auth.userId) {
+//       if (userStore.users.get(Number(parts[1])) === undefined) {
+//         userStore.reqGetUser({ profile: '', login: '', id: Number(parts[1]) })
+//       }
+//       return (
+//         userStore.users.get(Number(parts[1]))?.name +
+//         ' ' +
+//         userStore.users.get(Number(parts[1]))?.surname
+//       )
+//     } else {
+//       if (userStore.users.get(Number(parts[0])) === undefined) {
+//         userStore.reqGetUser({ profile: '', login: '', id: Number(parts[0]) })
+//       }
+//       return (
+//         userStore.users.get(Number(parts[0]))?.name +
+//         ' ' +
+//         userStore.users.get(Number(parts[0]))?.surname
+//       )
+//     }
+//   }
 
-  return chat.name
-}
+//   return chat.name
+// }
 
 onBeforeMount(printItem(props.item))
 </script>
